@@ -1,0 +1,15 @@
+# Ignora arquivos de configuração da IDE
+.idea/
+
+# Ignora arquivos de banco de dados
+*.mv.db
+
+# Ignora logs
+*.log
+log.txt
+
+# Ignora arquivos de build
+target/
+
+# Ignora sub-repositórios locais
+controle-financeiro/
