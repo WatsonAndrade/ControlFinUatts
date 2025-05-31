@@ -1,70 +1,78 @@
 <div class="container">
+  <!-- Seletor de Mês -->
   <div class="month-selector">
     <select [(ngModel)]="mesSelecionado" (change)="carregarDados()">
       <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
     </select>
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
+  <!-- Formulários -->
+  <div class="forms-container">
+    <!-- Formulário de Gasto -->
+    <div class="form-card">
+      <h3>Adicionar Gasto</h3>
+      <form (ngSubmit)="adicionarGasto()">
+        <div class="form-group">
+          <select [(ngModel)]="novoGasto.categoria" name="categoria" required>
+            <option value="">Selecione a categoria</option>
+            <option value="CreditCard">Cartão de Crédito</option>
+            <option value="Transporte">Transporte - (Uber)</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Lazer">Lazer</option>
+          </select>
+          <div *ngIf="fieldErrors.gasto_categoria" class="error-message">
+            {{ fieldErrors.gasto_categoria }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" [(ngModel)]="novoGasto.descricao" name="descricao" placeholder="Descrição">
+        </div>
+
+        <div class="form-group">
+          <input type="number" [(ngModel)]="novoGasto.valor" name="valor" placeholder="Valor" min="0.01" step="0.01" required>
+          <div *ngIf="fieldErrors.gasto_valor" class="error-message">
+            {{ fieldErrors.gasto_valor }}
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Salvando...' : 'Adicionar Gasto' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Formulário de Receita -->
+    <div class="form-card">
+      <h3>Adicionar Receita</h3>
+      <form (ngSubmit)="adicionarReceita()">
+        <div class="form-group">
+          <input type="text" [(ngModel)]="novaReceita.descricao" name="descricao" placeholder="Descrição" required>
+          <div *ngIf="fieldErrors.receita_descricao" class="error-message">
+            {{ fieldErrors.receita_descricao }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="number" [(ngModel)]="novaReceita.valor" name="valor" placeholder="Valor" min="0.01" step="0.01" required>
+          <div *ngIf="fieldErrors.receita_valor" class="error-message">
+            {{ fieldErrors.receita_valor }}
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Salvando...' : 'Adicionar Receita' }}
+        </button>
+      </form>
+    </div>
   </div>
 
- <div class="forms-container">
-  <div class="form-card">
-    <h3>Adicionar Gasto</h3>
-    <form (ngSubmit)="adicionarGasto()">
-      <select [(ngModel)]="mesSelecionado" name="mes" (change)="carregarDados()" required>
-        <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
-      </select>
-
-      <select [(ngModel)]="novoGasto.categoria" name="categoria" required>
-        <option value="">Selecione a categoria</option>
-        <option value="Alimentação">Alimentação</option>
-        <option value="Transporte">Transporte</option>
-        <option value="Moradia">Moradia</option>
-        <option value="Lazer">Lazer</option>
-      </select>
-      
-      <input type="text" [(ngModel)]="novoGasto.descricao" name="descricao" placeholder="Descrição" required>
-      
-      <input type="number" [(ngModel)]="novoGasto.valor" name="valor" placeholder="Valor" min="0.01" step="0.01" required>
-      
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-      
-      <button type="submit" [disabled]="loading">
-        {{ loading ? 'Salvando...' : 'Adicionar Gasto' }}
-      </button>
-    </form>
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-indicator">
+    Processando...
   </div>
 
-  <div class="form-card">
-    <h3>Adicionar Receita</h3>
-    <form (ngSubmit)="adicionarReceita()">
-      <select [(ngModel)]="mesSelecionado" name="mes" (change)="carregarDados()" required>
-        <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
-      </select>
-
-      <input type="text" [(ngModel)]="novaReceita.descricao" name="descricao" placeholder="Descrição" required>
-      
-      <input type="number" [(ngModel)]="novaReceita.valor" name="valor" placeholder="Valor" min="0.01" step="0.01" required>
-      
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-      
-      <button type="submit" [disabled]="loading">
-        {{ loading ? 'Salvando...' : 'Adicionar Receita' }}
-      </button>
-    </form>
-  </div>
-</div>
-
-<div *ngIf="loading" class="loading-indicator">
-  Processando...
-</div>
-
+  <!-- Resumo Financeiro -->
   <div class="summary-card" *ngIf="!loading">
     <h2>Resumo - {{ mesSelecionado }}</h2>
     
@@ -86,55 +94,50 @@
     </div>
   </div>
 
+  <!-- Listas -->
   <div class="lists-container" *ngIf="!loading">
-<div class="list-card">
-  <h3>Gastos</h3>
-  <ul>
-    <li *ngFor="let gasto of gastos" [class.pago]="gasto.pago">
-      <div class="gasto-info">
-        <strong>{{ gasto.categoria }}</strong>: {{ gasto.descricao }}
-        <span class="valor negative">- {{ gasto.valor | currency:'BRL' }}</span>
-      </div>
-      
-      <div class="acoes">
-        <button *ngIf="!gasto.pago" (click)="marcarPago(gasto)" class="btn-pago">
-          <i class="material-icons">check</i> Marcar Pago
-        </button>
-        <span *ngIf="gasto.pago" class="pago-label">
-          <i class="material-icons">check_circle</i> Pago
-        </span>
-        <button (click)="apagarGasto(gasto.id!)" class="btn-excluir">
-          <i class="material-icons">delete</i>
-        </button>
-      </div>
-    </li>
-  </ul>
-</div>
+    <!-- Lista de Gastos -->
+    <div class="list-card">
+      <h3>Gastos</h3>
+      <ul>
+        <li *ngFor="let gasto of gastos" [class.pago]="gasto.pago">
+          <div class="gasto-info">
+            <strong>{{ gasto.categoria }}</strong>: {{ gasto.descricao }}
+            <span class="valor negative">- {{ gasto.valor | currency:'BRL' }}</span>
+          </div>
+          
+          <div class="acoes">
+            <button *ngIf="!gasto.pago" (click)="marcarPago(gasto)" class="btn-pago">
+              <i class="material-icons">check</i> Marcar Pago
+            </button>
+            <span *ngIf="gasto.pago" class="pago-label">
+              <i class="material-icons">check_circle</i> Pago
+            </span>
+            <button (click)="apagarGasto(gasto.id!)" class="btn-excluir">
+              <i class="material-icons">delete</i>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
 
-<!-- Lista de Receitas (similar, sem marcação de pago) -->
-<div class="list-card">
-  <h3>Receitas</h3>
-  <ul>
-    <li *ngFor="let receita of receitas">
-      <div class="receita-info">
-        {{ receita.descricao }}
-        <span class="valor positive">+ {{ receita.valor | currency:'BRL' }}</span>
-      </div>
-      
-      <div class="acoes">
-        <button (click)="apagarReceita(receita.id!)" class="btn-excluir">
-          <i class="material-icons">delete</i>
-        </button>
-      </div>
-    </li>
-  </ul>
-</div>
-  </div>
-
-  
-
-  <!-- Loading Indicator -->
-  <div *ngIf="loading" class="loading-indicator">
-    Carregando dados...
+    <!-- Lista de Receitas -->
+    <div class="list-card">
+      <h3>Receitas</h3>
+      <ul>
+        <li *ngFor="let receita of receitas">
+          <div class="receita-info">
+            {{ receita.descricao }}
+            <span class="valor positive">+ {{ receita.valor | currency:'BRL' }}</span>
+          </div>
+          
+          <div class="acoes">
+            <button (click)="apagarReceita(receita.id!)" class="btn-excluir">
+              <i class="material-icons">delete</i>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
