@@ -1,0 +1,283 @@
+/* Estilos base */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Controle de mês */
+.month-selector {
+  margin-bottom: 25px;
+}
+
+.month-selector select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+/* Mensagens de erro */
+.error-message {
+  color: #d32f2f;
+  background-color: #fde0e0;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border-left: 4px solid #d32f2f;
+}
+
+/* Formulários */
+.forms-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.form-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.form-card input,
+.form-card select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.form-card button {
+  background-color: #442379;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.form-card button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Resumo */
+.summary-card {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.summary-card h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.summary-item.balance {
+  font-weight: bold;
+  font-size: 1.1em;
+  border-bottom: none;
+}
+
+.positive {
+  color: #2e7d32;
+}
+
+.negative {
+  color: #c62828;
+}
+
+/* Listas */
+.lists-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.list-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.list-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.list-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-card li {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Loading */
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.forms-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.form-card {
+  flex: 1;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+select, input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Estilos para as listas */
+.list-card {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li.pago {
+  opacity: 0.7;
+}
+
+li.pago .gasto-info {
+  text-decoration: line-through;
+}
+
+/* Área de informações */
+.gasto-info, .receita-info {
+  flex: 1;
+}
+
+.valor {
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.positive {
+  color: #2e7d32;
+}
+
+.negative {
+  color: #c62828;
+}
+
+/* Botões de ação */
+.acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.btn-pago {
+  color: #2e7d32;
+}
+
+.btn-pago:hover {
+  background-color: #e8f5e9;
+}
+
+.btn-excluir {
+  color: #c62828;
+}
+
+.btn-excluir:hover {
+  background-color: #ffebee;
+}
+
+.pago-label {
+  color: #2e7d32;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Ícones do Material Icons */
+.material-icons {
+  font-size: 18px;
+}

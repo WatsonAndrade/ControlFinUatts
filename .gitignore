@@ -11,5 +11,3 @@ log.txt
 # Ignora arquivos de build
 target/
 
-# Ignora sub-repositórios locais
-controle-financeiro/
