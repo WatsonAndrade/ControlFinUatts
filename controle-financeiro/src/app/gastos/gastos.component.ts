@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FinanceiroService } from '../services/financeiro.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import Papa from 'papaparse';
+import { HttpClient } from '@angular/common/http';
 
 interface Gasto {
   id?: number;
@@ -50,6 +52,8 @@ export class GastosComponent implements OnInit {
     descricao: ''
   };
 
+  gastosImportadosTemp: Gasto[] = [];
+
   loading = false;
   fieldErrors: {
     gasto_categoria?: string;
@@ -59,7 +63,7 @@ export class GastosComponent implements OnInit {
   } = {};
 
   constructor(private financeiroService: FinanceiroService,
-              ) {}            
+              private http: HttpClient) {}
 
   ngOnInit(): void {
     this.carregarDados();
@@ -225,4 +229,50 @@ export class GastosComponent implements OnInit {
       }
     });
   }
+
+  onCSVSelecionado(event: any, inputElement: HTMLInputElement): void {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: (resultado: Papa.ParseResult<any>) => {
+      const linhas = resultado.data as any[];
+
+      const gastosFiltrados: Gasto[] = linhas
+        .filter(linha =>
+          linha.title?.trim() &&
+          linha.title !== 'Pagamento recebido' &&
+          !linha.amount.startsWith('-')
+        )
+        .map(linha => ({
+          descricao: linha.title,
+          valor: parseFloat(linha.amount),
+          categoria: 'Importado',
+          mes: this.mesSelecionado,
+          pago: false
+        }));
+
+      this.gastosImportadosTemp = gastosFiltrados;
+      inputElement.value = '';
+    }
+  });
+}
+
+  importarGastos(): void {
+  if (this.gastosImportadosTemp.length === 0) return;
+
+  this.http.post('http://localhost:8080/api/gastos/importar', this.gastosImportadosTemp).subscribe({
+    next: () => {
+      alert('Gastos importados com sucesso!');
+      this.gastosImportadosTemp = []; // limpar lista
+      this.carregarDados();
+    },
+    error: (err) => {
+      console.error('Erro ao importar:', err);
+      alert('Erro ao importar CSV.');
+    }
+  });
+}
 }

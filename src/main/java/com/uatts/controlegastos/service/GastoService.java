@@ -39,4 +39,9 @@ public class GastoService {
         gasto.setPago(true);
         return gastoRepository.save(gasto);
     }
+
+    public void salvarTodos(List<Gasto> gastos) {
+        gastoRepository.saveAll(gastos);
+    }
+
 }

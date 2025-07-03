@@ -11,6 +11,7 @@
     <!-- Formulário de Gasto -->
     <div class="form-card">
       <h3>Adicionar Gasto</h3>
+      
       <form (ngSubmit)="adicionarGasto()">
         <div class="form-group">
           <select [(ngModel)]="novoGasto.categoria" name="categoria" required>
@@ -40,6 +41,33 @@
           {{ loading ? 'Salvando...' : 'Adicionar Gasto' }}
         </button>
       </form>
+      <hr />
+      <div class="form-group">
+        <label for="arquivoCSV">Importar gastos via CSV</label>
+        <input
+          #inputCsv
+          id="arquivoCSV"
+          type="file"
+          accept=".csv"
+          (change)="onCSVSelecionado($event, inputCsv)"
+          class="input-csv"
+        />
+      </div>
+
+      <button (click)="importarGastos()" [disabled]="gastosImportadosTemp.length === 0">
+        Importar Gastos
+      </button>
+
+      
+      <div *ngIf="gastosImportadosTemp.length > 0" class="preview-list">
+        <h4>Prévia dos Gastos Importados</h4>
+        <ul>
+          <li *ngFor="let gasto of gastosImportadosTemp">
+            {{ gasto.descricao }} - {{ gasto.valor | currency:'BRL' }}
+          </li>
+        </ul>
+      </div>
+
     </div>
 
     <!-- Formulário de Receita -->

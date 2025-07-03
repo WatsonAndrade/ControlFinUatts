@@ -40,4 +40,11 @@ public class GastoController {
         Gasto gastoAtualizado = gastoService.marcarComoPago(id);
         return ResponseEntity.ok(gastoAtualizado);
     }
+
+    @PostMapping("/importar")
+    public ResponseEntity<Void> importarCSV(@RequestBody List<Gasto> gastos) {
+        gastoService.salvarTodos(gastos);
+        return ResponseEntity.ok().build();
+    }
+
 }
