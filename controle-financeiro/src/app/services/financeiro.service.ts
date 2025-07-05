@@ -19,8 +19,10 @@ export class FinanceiroService {
 }
 
  listarGastosPorMes(mes: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/api/gastos/mes/${mes.toLowerCase()}`);
-}
+   const mesNormalizado = mes.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+   return this.http.get(`${this.apiUrl}/api/gastos/mes/${mesNormalizado}`);
+ }
 
   // Receitas
   criarReceita(receita: any): Observable<any> {

@@ -1,13 +1,34 @@
-# Ignora arquivos de configuração da IDE
+# IDEs
 .idea/
+.vscode/
 
-# Ignora arquivos de banco de dados
-*.mv.db
+# Node modules
+node_modules/
 
-# Ignora logs
+# Angular build
+dist/
+.angular/
+out-tsc/
+
+# Arquivos temporários e logs
 *.log
 log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Ignora arquivos de build
+# Arquivos de banco de dados locais
+*.mv.db
+*.trace.db
+*.h2.db
+
+# Build do Java
 target/
 
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos locais de execução
+controle_servidor.bat
+.env

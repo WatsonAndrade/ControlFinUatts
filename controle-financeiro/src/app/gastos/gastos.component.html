@@ -1,171 +1,169 @@
-<div class="container">
-  <!-- Seletor de Mês -->
-  <div class="month-selector">
-    <select [(ngModel)]="mesSelecionado" (change)="carregarDados()">
-      <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
-    </select>
-  </div>
-
-  <!-- Formulários -->
-  <div class="forms-container">
-    <!-- Formulário de Gasto -->
-    <div class="form-card">
-      <h3>Adicionar Gasto</h3>
-      
-      <form (ngSubmit)="adicionarGasto()">
-        <div class="form-group">
-          <select [(ngModel)]="novoGasto.categoria" name="categoria" required>
-            <option value="">Selecione a categoria</option>
-            <option value="CreditCard">Cartão de Crédito</option>
-            <option value="Transporte">Transporte - (Uber)</option>
-            <option value="Moradia">Moradia</option>
-            <option value="Lazer">Lazer</option>
-          </select>
-          <div *ngIf="fieldErrors.gasto_categoria" class="error-message">
-            {{ fieldErrors.gasto_categoria }}
-          </div>
-        </div>
-
-        <div class="form-group">
-          <input type="text" [(ngModel)]="novoGasto.descricao" name="descricao" placeholder="Descrição">
-        </div>
-
-        <div class="form-group">
-          <input type="number" [(ngModel)]="novoGasto.valor" name="valor" placeholder="Valor" min="0.01" step="0.01" required>
-          <div *ngIf="fieldErrors.gasto_valor" class="error-message">
-            {{ fieldErrors.gasto_valor }}
-          </div>
-        </div>
-
-        <button type="submit" [disabled]="loading">
-          {{ loading ? 'Salvando...' : 'Adicionar Gasto' }}
-        </button>
-      </form>
-      <hr />
-      <div class="form-group">
-        <label for="arquivoCSV">Importar gastos via CSV</label>
-        <input
-          #inputCsv
-          id="arquivoCSV"
-          type="file"
-          accept=".csv"
-          (change)="onCSVSelecionado($event, inputCsv)"
-          class="input-csv"
-        />
-      </div>
-
-      <button (click)="importarGastos()" [disabled]="gastosImportadosTemp.length === 0">
-        Importar Gastos
-      </button>
-
-      
-      <div *ngIf="gastosImportadosTemp.length > 0" class="preview-list">
-        <h4>Prévia dos Gastos Importados</h4>
-        <ul>
-          <li *ngFor="let gasto of gastosImportadosTemp">
-            {{ gasto.descricao }} - {{ gasto.valor | currency:'BRL' }}
-          </li>
-        </ul>
-      </div>
-
-    </div>
-
-    <!-- Formulário de Receita -->
-    <div class="form-card">
-      <h3>Adicionar Receita</h3>
-      <form (ngSubmit)="adicionarReceita()">
-        <div class="form-group">
-          <input type="text" [(ngModel)]="novaReceita.descricao" name="descricao" placeholder="Descrição" required>
-          <div *ngIf="fieldErrors.receita_descricao" class="error-message">
-            {{ fieldErrors.receita_descricao }}
-          </div>
-        </div>
-
-        <div class="form-group">
-          <input type="number" [(ngModel)]="novaReceita.valor" name="valor" placeholder="Valor" min="0.01" step="0.01" required>
-          <div *ngIf="fieldErrors.receita_valor" class="error-message">
-            {{ fieldErrors.receita_valor }}
-          </div>
-        </div>
-
-        <button type="submit" [disabled]="loading">
-          {{ loading ? 'Salvando...' : 'Adicionar Receita' }}
-        </button>
-      </form>
+<div class="cabecalho-container">
+  <div class="logo-area">
+    <span class="logo">💰 Finance<span class="logo-highlight">Control</span></span>
+    <div class="acoes-rapidas">
+      <button class="btn-visao">📅 Visão Mensal</button>
+      <button class="btn-resumo">📊 Resumo Anual</button>
     </div>
   </div>
 
-  <!-- Loading Indicator -->
-  <div *ngIf="loading" class="loading-indicator">
-    Processando...
+  <h1 class="titulo">Controle Financeiro Mensal</h1>
+  <p class="subtitulo">Gerencie suas finanças de forma inteligente e organizada</p>
+
+  <div class="selectores">
+    <div class="seletor">
+      <label for="ano">Ano</label>
+      <select id="ano" [(ngModel)]="anoSelecionado" (change)="carregarDados()">
+        <option *ngFor="let ano of anos" [value]="ano">{{ ano }}</option>
+      </select>
+    </div>
+    <div class="seletor">
+      <label for="mes">Mês</label>
+      <select id="mes" [(ngModel)]="mesSelecionado" (change)="carregarDados()">
+        <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="resumo-container">
+  <!-- Receita Mensal -->
+  <div class="bloco-verde">
+    <h3>💵 Receita Mensal</h3>
+    <label for="receitaMensal">Salário/Receita Fixa</label>
+    <input type="number" id="receitaMensal" [(ngModel)]="receitaMensal" (input)="atualizarResumo()" />
   </div>
 
-  <!-- Resumo Financeiro -->
-  <div class="summary-card" *ngIf="!loading">
-    <h2>Resumo - {{ mesSelecionado }}</h2>
-    
-    <div class="summary-item">
-      <span>Total Receitas:</span>
-      <span class="positive">{{ resumo.totalReceitas | currency:'BRL' }}</span>
-    </div>
-    
-    <div class="summary-item">
-      <span>Total Gastos:</span>
-      <span class="negative">{{ resumo.totalGastos | currency:'BRL' }}</span>
-    </div>
-    
-    <div class="summary-item balance">
-      <span>Saldo:</span>
-      <span [class.positive]="resumo.saldo >= 0" [class.negative]="resumo.saldo < 0">
-        {{ resumo.saldo | currency:'BRL' }}
+  <!-- Total de Receita -->
+  <div class="bloco-receita">
+    <h3>📈 Receita</h3>
+    <p>R$ {{ resumo?.totalReceitas?.toFixed(2) || '0,00' }}</p>
+  </div>
+
+  <!-- Total de Despesas -->
+  <div class="bloco-despesa">
+    <h3>📉 Total de Despesas</h3>
+    <p>R$ {{ resumo?.totalGastos?.toFixed(2) || '0,00' }}</p>
+  </div>
+
+  <!-- Saldo Restante -->
+  <div class="bloco-saldo">
+    <h3>📊 Saldo Restante</h3>
+    <p>R$ {{ resumo?.saldo?.toFixed(2) || '0,00' }}</p>
+  </div>
+
+  <!-- Resumo Rápido -->
+  <div class="bloco-status">
+    <h3>📋 Resumo Rápido</h3>
+    <p><strong>Mês:</strong> {{ mesSelecionado }} {{ anoSelecionado }}</p>
+    <p>
+      <strong>Status:</strong>
+      <span [ngStyle]="{'color': resumo?.saldo >= 0 ? '#00ff99' : '#ff5050'}">
+        {{ resumo?.saldo >= 0 ? 'Positivo' : 'Negativo' }}
       </span>
+    </p>
+  </div>
+</div>
+
+<!-- Formulário de Gasto -->
+<div class="despesas-container">
+  <h3>📂 Despesas por Categoria</h3>
+
+  <div class="grid-despesas">
+    <div class="input-box"
+      *ngFor="let cat of ['Cartão de Crédito', 'Contas Fixas', 'Transporte', 'Moradia', 'Alimentação', 'Gastos Não Programados']">
+      <label>{{ cat }}</label>
+      <input type="number" [(ngModel)]="despesasPorCategoria[cat]" placeholder="0.00"
+        (input)="atualizarTotalDespesas()" />
     </div>
   </div>
 
-  <!-- Listas -->
-  <div class="lists-container" *ngIf="!loading">
-    <!-- Lista de Gastos -->
-    <div class="list-card">
-      <h3>Gastos</h3>
-      <ul>
-        <li *ngFor="let gasto of gastos" [class.pago]="gasto.pago">
-          <div class="gasto-info">
-            <strong>{{ gasto.categoria }}</strong>: {{ gasto.descricao }}
-            <span class="valor negative">- {{ gasto.valor | currency:'BRL' }}</span>
-          </div>
-          
-          <div class="acoes">
-            <button *ngIf="!gasto.pago" (click)="marcarPago(gasto)" class="btn-pago">
-              <i class="material-icons">check</i> Marcar Pago
-            </button>
-            <span *ngIf="gasto.pago" class="pago-label">
-              <i class="material-icons">check_circle</i> Pago
-            </span>
-            <button (click)="apagarGasto(gasto.id!)" class="btn-excluir">
-              <i class="material-icons">delete</i>
-            </button>
-          </div>
-        </li>
-      </ul>
+  <button class="btn-salvar" (click)="salvarDadosCategoria()">💾 Salvar Dados do Mês</button>
+</div>
+
+<div class="formulario-container">
+  <!-- Adicionar Gasto -->
+  <div class="form-card">
+    <h3>➕ Adicionar Gasto</h3>
+
+    <div class="campo-form">
+      <label>Descrição</label>
+      <input type="text" [(ngModel)]="novoGasto.descricao" placeholder="Ex: Energia elétrica" />
     </div>
 
-    <!-- Lista de Receitas -->
-    <div class="list-card">
-      <h3>Receitas</h3>
-      <ul>
-        <li *ngFor="let receita of receitas">
-          <div class="receita-info">
-            {{ receita.descricao }}
-            <span class="valor positive">+ {{ receita.valor | currency:'BRL' }}</span>
-          </div>
-          
-          <div class="acoes">
-            <button (click)="apagarReceita(receita.id!)" class="btn-excluir">
-              <i class="material-icons">delete</i>
-            </button>
-          </div>
-        </li>
-      </ul>
+    <div class="campo-form">
+      <label>Categoria</label>
+      <input type="text" [(ngModel)]="novoGasto.categoria" placeholder="Ex: Contas Fixas" />
     </div>
+
+    <div class="campo-form">
+      <label>Valor</label>
+      <input type="number" [(ngModel)]="novoGasto.valor" placeholder="0.00" />
+    </div>
+
+    <button class="btn-adicionar" (click)="adicionarGasto()">💾 Salvar Gasto</button>
   </div>
+
+  <!-- Importação CSV -->
+  <div class="form-card importacao-csv">
+    <h3>📥 Importar Gastos via CSV</h3>
+
+    <!-- input escondido visualmente -->
+    <input type="file" accept=".csv" (change)="onCSVSelecionado($event, inputCsv)" #inputCsv class="input-csv-real" />
+
+    <!-- botão que dispara o seletor de arquivos -->
+    <button class="btn-importar" (click)="inputCsv.click()">📎 Selecionar Arquivo CSV</button>
+
+    <button class="btn-importar" (click)="importarGastos()" [disabled]="gastosImportadosTemp.length === 0">
+      ✅ Importar para o Sistema
+    </button>
+
+    <small class="dica-csv">Dica: O arquivo deve conter colunas <code>title</code>, <code>amount</code> e
+      <code>date</code>.</small>
+  </div>
+</div>
+
+<!-- Lista de Gastos -->
+<div class="lista-gastos">
+  <h3>🧾 Lista de Gastos</h3>
+
+  <div class="acoes-lote" *ngIf="existeSelecionado()">
+    <button class="btn-deletar-lote" (click)="deletarSelecionados()">🗑 Excluir Selecionados</button>
+  </div>
+
+  <table class="tabela-gastos" *ngIf="gastos.length > 0; else semDados">
+    <thead>
+      <tr>
+        <th>
+          <input type="checkbox" (change)="selecionarTodosGastos(obterCheckboxMarcado($event))" />
+        </th>
+        <th>Descrição</th>
+        <th>Categoria</th>
+        <th>Valor</th>
+        <th>Pago</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let g of gastos">
+        <td><input type="checkbox" [(ngModel)]="gastoSelecionado[g.id!]" /></td>
+        <td>{{ g.descricao }}</td>
+        <td>{{ g.categoria }}</td>
+        <td>R$ {{ g.valor.toFixed(2) }}</td>
+        <td>
+          <span class="tag" [ngClass]="g.pago ? 'pago' : 'nao-pago'">
+            {{ g.pago ? 'Sim' : 'Não' }}
+          </span>
+        </td>
+        <td>
+          <button class="btn-acao" (click)="marcarPago(g)" [disabled]="g.pago">✅</button>
+          <button class="btn-acao btn-trash" (click)="apagarGasto(g.id!)">🗑</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #semDados>
+    <p class="sem-dados">Nenhum gasto encontrado para o mês selecionado.</p>
+  </ng-template>
 </div>

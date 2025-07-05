@@ -23,9 +23,9 @@ public class GastoController {
         return ResponseEntity.ok(novoGasto);
     }
 
-    @GetMapping("/mes/{mes}")
-    public ResponseEntity<List<Gasto>> listarPorMes(@PathVariable String mes) {
-        List<Gasto> gastos = gastoService.buscarPorMes(mes);
+    @GetMapping("/mes/{mesPagamento}")
+    public ResponseEntity<List<Gasto>> listarPorMes(@PathVariable String mesPagamento) {
+        List<Gasto> gastos = gastoService.buscarPorMes(mesPagamento);
         return ResponseEntity.ok(gastos);
     }
 

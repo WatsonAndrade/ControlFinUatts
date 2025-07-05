@@ -22,8 +22,8 @@ public class GastoService {
         return gastoRepository.save(gasto);
     }
 
-    public List<Gasto> buscarPorMes(String mes) {
-        return gastoRepository.findByMesIgnoreCase(mes);
+    public List<Gasto> buscarPorMes(String mesPagamento) {
+        return gastoRepository.findByMesPagamentoIgnoreCase(mesPagamento);
     }
 
     @Transactional

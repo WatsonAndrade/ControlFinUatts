@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GastoRepository extends JpaRepository<Gasto, Long> {
-        List<Gasto> findByMesIgnoreCase(String mes);
+        List<Gasto> findByMesPagamentoIgnoreCase(String mesPagamento);
 
-        @Query("SELECT SUM(g.valor) FROM Gasto g WHERE LOWER(g.mes) = LOWER(:mes)")
+        @Query("SELECT SUM(g.valor) FROM Gasto g WHERE LOWER(g.mesPagamento) = LOWER(:mes)")
         Optional<Double> sumValorByMes(@Param("mes") String mes);
 }
