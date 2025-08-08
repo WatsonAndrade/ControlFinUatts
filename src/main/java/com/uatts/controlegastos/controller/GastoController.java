@@ -1,20 +1,27 @@
 package com.uatts.controlegastos.controller;
 
+import com.uatts.controlegastos.dto.AtualizacaoGastoDTO;
+import com.uatts.controlegastos.dto.ImportacaoResponseDTO;
 import com.uatts.controlegastos.model.Gasto;
+import com.uatts.controlegastos.service.CsvParserService;
 import com.uatts.controlegastos.service.GastoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/gastos")
 public class GastoController {
 
     private final GastoService gastoService;
+    private final CsvParserService csvParserService;
 
-    public GastoController(GastoService gastoService) {
+    public GastoController(GastoService gastoService, CsvParserService csvParserService) {
         this.gastoService = gastoService;
+        this.csvParserService = csvParserService;
     }
 
     @PostMapping
@@ -36,9 +43,16 @@ public class GastoController {
     }
 
     @PatchMapping("/{id}/pago")
-    public ResponseEntity<Gasto> marcarComoPago(@PathVariable Long id) {
-        Gasto gastoAtualizado = gastoService.marcarComoPago(id);
-        return ResponseEntity.ok(gastoAtualizado);
+    public ResponseEntity<Void> atualizarStatusPago(@PathVariable Long id, @RequestBody Boolean pago) {
+        Optional<Gasto> optionalGasto = gastoService.buscarPorId(id);
+        if (optionalGasto.isPresent()) {
+            Gasto gasto = optionalGasto.get();
+            gasto.setPago(pago);
+            gastoService.salvar(gasto);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/importar")
@@ -46,5 +60,50 @@ public class GastoController {
         gastoService.salvarTodos(gastos);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/importar-csv")
+    public ResponseEntity<ImportacaoResponseDTO> importarArquivo(@RequestBody String csvText) {
+        List<Gasto> gastos = csvParserService.parse(csvText);
+        int totalLidas = gastos.size();
+
+        List<Gasto> filtrados = gastoService.filtrarDuplicados(gastos);
+        gastoService.salvarTodos(filtrados);
+
+        int importadas = filtrados.size();
+        int ignoradas = totalLidas - importadas;
+
+        ImportacaoResponseDTO resposta = new ImportacaoResponseDTO(totalLidas, importadas, ignoradas);
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Gasto>> listarPorFiltros(
+            @RequestParam String mesPagamento,
+            @RequestParam Integer anoPagamento,
+            @RequestParam(required = false) Boolean pago
+    ) {
+        List<Gasto> gastos = gastoService.buscarPorFiltros(mesPagamento, anoPagamento, pago);
+        return ResponseEntity.ok(gastos);
+    }
+
+    @PatchMapping("/{id}/responsavel")
+    public ResponseEntity<Gasto> atualizarResponsavel(@PathVariable Long id, @RequestBody String responsavel) {
+        Gasto atualizado = gastoService.atualizarResponsavel(id, responsavel);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    @PatchMapping("/{id}/categoria")
+    public ResponseEntity<Gasto> atualizarCategoria(@PathVariable Long id, @RequestBody String categoria) {
+        Gasto atualizado = gastoService.atualizarCategoria(id, categoria);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Gasto> atualizarParcialmente(@PathVariable Long id, @RequestBody @Valid AtualizacaoGastoDTO dto) {
+        Gasto atualizado = gastoService.atualizarParcialmente(id, dto);
+        return ResponseEntity.ok(atualizado);
+    }
+
+
 
 }

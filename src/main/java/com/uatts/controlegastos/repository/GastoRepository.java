@@ -12,4 +12,8 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
 
         @Query("SELECT SUM(g.valor) FROM Gasto g WHERE LOWER(g.mesPagamento) = LOWER(:mes)")
         Optional<Double> sumValorByMes(@Param("mes") String mes);
+
+        List<Gasto> findByMesPagamentoIgnoreCaseAndAnoPagamento(String mesPagamento, Integer anoPagamento);
+
+        List<Gasto> findByMesPagamentoIgnoreCaseAndAnoPagamentoAndPago(String mesPagamento, Integer anoPagamento, boolean pago);
 }
