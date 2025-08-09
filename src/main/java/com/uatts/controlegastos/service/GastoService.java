@@ -190,25 +190,40 @@ public class GastoService {
         if (mesPag == null) return null;
         String s = mesPag.trim().toLowerCase();
 
+        // número "7" ou "07"
         try {
             int n = Integer.parseInt(s);
             if (n >= 1 && n <= 12) return n;
         } catch (NumberFormatException ignore) {}
 
+        // nomes pt-BR e EN (abreviados e completos)
         switch (s) {
-            case "jan", "janeiro" -> { return 1; }
-            case "fev", "fevereiro" -> { return 2; }
-            case "mar", "marco", "março" -> { return 3; }
-            case "abr", "abril" -> { return 4; }
-            case "mai", "maio" -> { return 5; }
-            case "jun", "junho" -> { return 6; }
-            case "jul", "julho" -> { return 7; }
-            case "ago", "agosto" -> { return 8; }
-            case "set", "setembro" -> { return 9; }
-            case "out", "outubro" -> { return 10; }
-            case "nov", "novembro" -> { return 11; }
-            case "dez", "dezembro" -> { return 12; }
-            default -> { return null; }
+            // 1
+            case "jan": case "janeiro": case "january": return 1;
+            // 2
+            case "fev": case "fevereiro": case "feb": case "february": return 2;
+            // 3
+            case "mar": case "marco": case "março": case "march": return 3;
+            // 4
+            case "abr": case "abril": case "apr": case "april": return 4;
+            // 5
+            case "mai": case "maio": case "may": return 5;
+            // 6
+            case "jun": case "junho": case "june": return 6;
+            // 7
+            case "jul": case "julho": case "july": return 7;
+            // 8
+            case "ago": case "agosto": case "aug": case "august": return 8;
+            // 9
+            case "set": case "setembro": case "sep": case "september": return 9;
+            // 10
+            case "out": case "outubro": case "oct": case "october": return 10;
+            // 11
+            case "nov": case "novembro": case "november": return 11;
+            // 12
+            case "dez": case "dezembro": case "dec": case "december": return 12;
+
+            default: return null;
         }
     }
 

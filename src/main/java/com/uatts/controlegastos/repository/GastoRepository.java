@@ -15,28 +15,38 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
         @Query("SELECT SUM(g.valor) FROM Gasto g WHERE LOWER(g.mesPagamento) = LOWER(:mes)")
         Optional<Double> sumValorByMes(@Param("mes") String mes);
 
-        @Query("SELECT COALESCE(SUM(g.valor), 0) FROM Gasto g WHERE g.mesNumero = :mes AND g.anoPagamento = :ano")
+        @Query("""
+                select coalesce(sum(case when g.valor > 0 then g.valor else 0 end), 0)
+                from Gasto g
+                where g.mesNumero = :mes and g.anoPagamento = :ano
+                """)
         double sumValorByMesNumeroEAno(@Param("mes") Integer mes, @Param("ano") Integer ano);
 
-        @Query("SELECT COALESCE(SUM(g.valor), 0) FROM Gasto g WHERE g.mesNumero = :mes AND g.anoPagamento = :ano AND g.pago = true")
+        @Query("""
+                select coalesce(sum(case when g.pago = true and g.valor > 0 then g.valor else 0 end), 0)
+                from Gasto g
+                where g.mesNumero = :mes and g.anoPagamento = :ano
+                """)
         double sumValorPagoByMesNumeroEAno(@Param("mes") Integer mes, @Param("ano") Integer ano);
 
-        @Query("SELECT COUNT(g) FROM Gasto g WHERE g.mesNumero = :mes AND g.anoPagamento = :ano")
+        @Query("""
+                select count(g)
+                from Gasto g
+                where g.mesNumero = :mes and g.anoPagamento = :ano and g.valor > 0
+                """)
         long countByMesNumeroEAno(@Param("mes") Integer mes, @Param("ano") Integer ano);
 
         @Query("""
-                SELECT 
-                g.categoria AS categoria,
-                COALESCE(SUM(g.valor), 0) AS total,
-                COALESCE(SUM(CASE WHEN g.pago = true 
-                THEN g.valor ELSE 0 END),0) AS totalPago,
-                COUNT(g) AS quantidade
-                FROM Gasto g
-                WHERE g.mesNumero = :mes AND g.anoPagamento = :ano
-                GROUP BY g.categoria
+                select coalesce(g.categoria, 'Sem Categoria') as categoria,
+                sum(case when g.valor > 0 then g.valor else 0 end) as total,
+                sum(case when g.pago = true and g.valor > 0 then g.valor else 0 end) as totalPago,
+                count(case when g.valor > 0 then 1 end) as quantidade
+                from Gasto g
+                where (:mes is null or g.mesNumero = :mes)
+                and (:ano is null or g.anoPagamento = :ano)
+                group by coalesce(g.categoria, 'Sem Categoria')
                 """)
         List<Object[]> resumoPorCategoria(@Param("mes") Integer mes, @Param("ano") Integer ano);
-
 
         List<Gasto> findByMesPagamentoIgnoreCaseAndAnoPagamento(String mesPagamento, Integer anoPagamento);
 
