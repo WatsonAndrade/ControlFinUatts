@@ -13,10 +13,12 @@ export async function listarGastosPaginado(params: {
   page?: number;
   size?: number;
   pago?: boolean;
+  search?: string;
+  sort?: string; // ex: "data,desc" | "valor,asc"
 }) {
-  const { mesNumero, anoPagamento, page = 0, size = 10, pago } = params;
-  const res = await api.get("/gastos/paginado", { params: { mesNumero, anoPagamento, page, size, pago } });
-  return res.data;
+  const { mesNumero, anoPagamento, page = 0, size = 10, pago, search, sort } = params;
+  const res = await api.get("/gastos/paginado", { params: { mesNumero, anoPagamento, page, size, pago, search, sort } });
+  return res.data as Page<Gasto>;
 }
 
 export async function resumoPorCategoria(mesNumero: number, anoPagamento: number) {
@@ -27,4 +29,39 @@ export async function resumoPorCategoria(mesNumero: number, anoPagamento: number
 export async function resumoMensal(mesNumero: number, anoPagamento: number) {
   const res = await api.get("/gastos/resumo", { params: { mesNumero, anoPagamento } });
   return res.data;
+}
+
+export interface Gasto {
+  id: number;
+  mesPagamento: string;
+  mesNumero: number;
+  anoPagamento: number;
+  descricao: string;
+  categoria?: string | null;
+  valor: number;
+  pago: boolean;
+}
+
+// Tipagem de página (compatível com Spring Pageable)
+export interface Page<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;  // página atual (0-based)
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+// Atualização parcial
+export type AtualizacaoGastoDTO = Partial<Pick<Gasto, "pago" | "categoria" | "descricao">>;
+
+export async function atualizarGastoParcial(id: number, dto: AtualizacaoGastoDTO) {
+  const res = await api.patch(`/gastos/${id}`, dto);
+  return res.data as Gasto;
+}
+
+export async function excluirGasto(id: number) {
+  await api.delete(`/gastos/${id}`);
 }

@@ -4,6 +4,7 @@ import Card from "./components/ui/Card";
 import EditableMoneyCard from "./components/EditableMoneyCard";
 import { listarGastosPaginado, resumoMensal } from "./services/gastos";
 import { getReceita, setReceita } from "./utils/receitaStorage";
+import GastosTable from "./components/GastosTable";
 
 export default function App() {
   const [mesNumero, setMesNumero] = useState<number>(new Date().getMonth() + 1);
@@ -68,6 +69,8 @@ export default function App() {
             value={(receitaTotal - despesaTotal).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           />
         </div>
+
+        <GastosTable mesNumero={mesNumero} anoPagamento={anoPagamento} />
       </main>
     </div>
   );
