@@ -1,13 +1,19 @@
 package com.uatts.controlegastos.controller;
 
 import com.uatts.controlegastos.dto.AtualizacaoGastoDTO;
+import com.uatts.controlegastos.dto.CategoriaResumoDTO;
+import com.uatts.controlegastos.dto.CriarGastoDTO;
 import com.uatts.controlegastos.dto.ImportacaoResponseDTO;
+import com.uatts.controlegastos.dto.ResumoMensalDTO;
 import com.uatts.controlegastos.model.Gasto;
 import com.uatts.controlegastos.service.CsvParserService;
 import com.uatts.controlegastos.service.GastoService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +108,39 @@ public class GastoController {
     public ResponseEntity<Gasto> atualizarParcialmente(@PathVariable Long id, @RequestBody @Valid AtualizacaoGastoDTO dto) {
         Gasto atualizado = gastoService.atualizarParcialmente(id, dto);
         return ResponseEntity.ok(atualizado);
+    }
+
+    @GetMapping("/paginado")
+    public ResponseEntity<Page<Gasto>> listarPaginado(
+            @RequestParam Integer mesNumero,
+            @RequestParam Integer anoPagamento,
+            @RequestParam(required = false) Boolean pago,
+            Pageable pageable // aceita ?page=&size=&sort=
+    ) {
+        Page<Gasto> page = gastoService.buscarPaginado(mesNumero, anoPagamento, pago, pageable);
+        return ResponseEntity.ok(page);
+    }
+
+    @GetMapping("/resumo")
+    public ResponseEntity<ResumoMensalDTO> obterResumoMensal(
+            @RequestParam Integer mesNumero,
+            @RequestParam Integer anoPagamento) {
+        return ResponseEntity.ok(gastoService.obterResumoMensal(mesNumero, anoPagamento));
+    }
+
+    @GetMapping("/resumo-por-categoria")
+    public ResponseEntity<List<CategoriaResumoDTO>> resumoPorCategoria(
+            @RequestParam Integer mesNumero,
+            @RequestParam Integer anoPagamento
+    ) {
+        List<CategoriaResumoDTO> resumo = gastoService.obterResumoPorCategoria(mesNumero, anoPagamento);
+        return ResponseEntity.ok(resumo);
+    }
+
+    @PostMapping("/gastos")
+    public ResponseEntity<Gasto> criar(@Valid @RequestBody CriarGastoDTO dto) {
+        var gasto = gastoService.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(gasto);
     }
 
 

@@ -1,11 +1,13 @@
 package com.uatts.controlegastos.model;
 
+import com.uatts.controlegastos.listener.GastoListener;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity
 @Table
+@EntityListeners(GastoListener.class)
 public class Gasto {
 
     @Id
@@ -15,11 +17,13 @@ public class Gasto {
     @Column(nullable = false)
     private String mesPagamento;
 
-    @Column(nullable = false)
-    private Integer anoPagamento; // <- NOVO
+    private Integer mesNumero;
 
     @Column(nullable = false)
-    private String referenteA; // <- NOVO
+    private Integer anoPagamento;
+
+    @Column(nullable = true)
+    private String referenteA;
 
     @Column(nullable = false)
     private String categoria;

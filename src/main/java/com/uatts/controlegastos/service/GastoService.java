@@ -1,11 +1,17 @@
 package com.uatts.controlegastos.service;
 
 import com.uatts.controlegastos.dto.AtualizacaoGastoDTO;
+import com.uatts.controlegastos.dto.CategoriaResumoDTO;
+import com.uatts.controlegastos.dto.CriarGastoDTO;
+import com.uatts.controlegastos.dto.ResumoMensalDTO;
 import com.uatts.controlegastos.model.Gasto;
 import com.uatts.controlegastos.repository.GastoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -106,19 +112,137 @@ public class GastoService {
     public Gasto atualizarParcialmente(Long id, AtualizacaoGastoDTO dto) {
         Gasto gasto = buscarOuLancarErro(id);
 
-        if (dto.getMesPagamento() != null) gasto.setMesPagamento(dto.getMesPagamento());
-        if (dto.getAnoPagamento() != null) gasto.setAnoPagamento(dto.getAnoPagamento());
-        if (dto.getReferenteA() != null) gasto.setReferenteA(dto.getReferenteA());
-        if (dto.getCategoria() != null) gasto.setCategoria(dto.getCategoria());
-        if (dto.getValor() != null) gasto.setValor(dto.getValor());
-        if (dto.getDescricao() != null) gasto.setDescricao(dto.getDescricao());
-        if (dto.getPago() != null) gasto.setPago(dto.getPago());
-        if (dto.getTotalParcelas() != null) gasto.setTotalParcelas(dto.getTotalParcelas());
-        if (dto.getParcelaAtual() != null) gasto.setParcelaAtual(dto.getParcelaAtual());
+        if (dto.getMesPagamento() != null) {
+            gasto.setMesPagamento(dto.getMesPagamento());
+            Integer parsed = parseMes(dto.getMesPagamento());
+            if (parsed != null) {
+                gasto.setMesNumero(parsed);
+            }
+        }
+
+        if (dto.getAnoPagamento() != null)   gasto.setAnoPagamento(dto.getAnoPagamento());
+        if (dto.getReferenteA() != null)     gasto.setReferenteA(dto.getReferenteA());
+        if (dto.getCategoria() != null)      gasto.setCategoria(dto.getCategoria());
+        if (dto.getValor() != null)          gasto.setValor(dto.getValor());
+        if (dto.getDescricao() != null)      gasto.setDescricao(dto.getDescricao());
+        if (dto.getPago() != null)           gasto.setPago(dto.getPago());
+        if (dto.getTotalParcelas() != null)  gasto.setTotalParcelas(dto.getTotalParcelas());
+        if (dto.getParcelaAtual() != null)   gasto.setParcelaAtual(dto.getParcelaAtual());
+
+        if (gasto.getMesPagamento() == null && gasto.getMesNumero() != null) {
+            gasto.setMesPagamento(String.valueOf(gasto.getMesNumero()));
+        }
 
         return gastoRepository.save(gasto);
     }
 
+    public Page<Gasto> buscarPaginado(Integer mesNumero, Integer anoPagamento, Boolean pago, Pageable pageable) {
+        if (pago != null) {
+            return gastoRepository.findByMesNumeroAndAnoPagamentoAndPago(mesNumero, anoPagamento, pago, pageable);
+        }
+        return gastoRepository.findByMesNumeroAndAnoPagamento(mesNumero, anoPagamento, pageable);
+    }
+
+    public ResumoMensalDTO obterResumoMensal(Integer mesNumero, Integer anoPagamento) {
+        double total      = gastoRepository.sumValorByMesNumeroEAno(mesNumero, anoPagamento);
+        double totalPago  = gastoRepository.sumValorPagoByMesNumeroEAno(mesNumero, anoPagamento);
+        double totalAberto = total - totalPago;
+        long quantidade   = gastoRepository.countByMesNumeroEAno(mesNumero, anoPagamento);
+
+        return new ResumoMensalDTO(mesNumero, anoPagamento, total, totalPago, totalAberto, quantidade);
+    }
+
+    public List<CategoriaResumoDTO> obterResumoPorCategoria(Integer mesNumero, Integer anoPagamento) {
+        List<Object[]> rows = gastoRepository.resumoPorCategoria(mesNumero, anoPagamento);
+
+        List<CategoriaResumoDTO> lista = new ArrayList<>();
+        for (Object[] r : rows) {
+            String categoria = (String) r[0];
+            Double total = ((Number) r[1]).doubleValue();
+            Double totalPago = ((Number) r[2]).doubleValue();
+            Long quantidade = ((Number) r[3]).longValue();
+            Double totalAberto = total - totalPago;
+
+            lista.add(new CategoriaResumoDTO(categoria, total, totalPago, totalAberto, quantidade));
+        }
+
+        // opcional: ordenar por total desc
+        lista.sort((a, b) -> Double.compare(b.getTotal(), a.getTotal()));
+        return lista;
+    }
+
+    public Gasto criar(CriarGastoDTO dto) {
+        var g = new Gasto();
+        g.setMesNumero(dto.mesNumero());
+        g.setAnoPagamento(dto.anoPagamento());
+        g.setCategoria(dto.categoria());
+        g.setValor(dto.valor());
+        g.setDescricao(dto.descricao());
+        g.setPago(Boolean.TRUE.equals(dto.pago()));
+        g.setMesPagamento(dto.mesPagamento() != null ? dto.mesPagamento() : String.valueOf(dto.mesNumero()));
+        g.setReferenteA(dto.referenteA());
+        g.setTotalParcelas(dto.totalParcelas());
+        g.setParcelaAtual(dto.parcelaAtual());
+        return gastoRepository.save(g);
+    }
+
+    private Integer parseMes(String mesPag) {
+        if (mesPag == null) return null;
+        String s = mesPag.trim().toLowerCase();
+
+        try {
+            int n = Integer.parseInt(s);
+            if (n >= 1 && n <= 12) return n;
+        } catch (NumberFormatException ignore) {}
+
+        switch (s) {
+            case "jan", "janeiro" -> { return 1; }
+            case "fev", "fevereiro" -> { return 2; }
+            case "mar", "marco", "março" -> { return 3; }
+            case "abr", "abril" -> { return 4; }
+            case "mai", "maio" -> { return 5; }
+            case "jun", "junho" -> { return 6; }
+            case "jul", "julho" -> { return 7; }
+            case "ago", "agosto" -> { return 8; }
+            case "set", "setembro" -> { return 9; }
+            case "out", "outubro" -> { return 10; }
+            case "nov", "novembro" -> { return 11; }
+            case "dez", "dezembro" -> { return 12; }
+            default -> { return null; }
+        }
+    }
+
+    @Transactional
+    public int backfillMesAno() {
+        var pendentes = gastoRepository.findByMesNumeroIsNullOrMesPagamentoIsNull();
+        int updates = 0;
+
+        for (var g : pendentes) {
+            boolean mudou = false;
+
+            // Se mesNumero está nulo, tenta derivar de mesPagamento
+            if (g.getMesNumero() == null && g.getMesPagamento() != null) {
+                Integer parsed = parseMes(g.getMesPagamento());
+                if (parsed != null) {
+                    g.setMesNumero(parsed);
+                    mudou = true;
+                }
+            }
+
+            // Se mesPagamento (String) está nulo mas há mesNumero, derive o texto
+            if (g.getMesPagamento() == null && g.getMesNumero() != null) {
+                g.setMesPagamento(String.valueOf(g.getMesNumero()));
+                mudou = true;
+            }
+
+            if (mudou) updates++;
+        }
+
+        if (!pendentes.isEmpty()) {
+            gastoRepository.saveAll(pendentes);
+        }
+        return updates;
+    }
 
 
 }

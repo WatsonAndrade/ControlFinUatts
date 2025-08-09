@@ -8,7 +8,9 @@ import lombok.Setter;
 @Setter
 public class AtualizacaoGastoDTO {
 
-    @Pattern(regexp = "^[A-Za-z]+$", message = "O mês deve conter apenas letras.")
+    @Pattern(regexp = "^(?:[1-9]|1[0-2]|jan(?:eiro)?|fev(?:ereiro)?|mar(?:ço|co)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?)$",
+             flags = { Pattern.Flag.CASE_INSENSITIVE },
+             message = "Use 1–12 ou o nome do mês (ex.: 7, jul, julho).")
     private String mesPagamento;
 
     @Min(value = 2000, message = "O ano deve ser no mínimo 2000.")
