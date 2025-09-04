@@ -143,6 +143,14 @@ public class GastoService {
         return gastoRepository.findByMesNumeroAndAnoPagamento(mesNumero, anoPagamento, pageable);
     }
 
+    public Page<Gasto> buscarPaginadoExcluindoCategoria(Integer mesNumero, Integer anoPagamento, Boolean pago, String excluirCategoria, Pageable pageable) {
+        return gastoRepository.pageByPeriodoExcluindoCategoria(mesNumero, anoPagamento, pago, excluirCategoria, pageable);
+    }
+
+    public List<Gasto> buscarPorCategoria(Integer mesNumero, Integer anoPagamento, String categoria) {
+        return gastoRepository.findByMesNumeroAndAnoPagamentoAndCategoria(mesNumero, anoPagamento, categoria);
+    }
+
     public ResumoMensalDTO obterResumoMensal(Integer mesNumero, Integer anoPagamento) {
         double total      = gastoRepository.sumValorByMesNumeroEAno(mesNumero, anoPagamento);
         double totalPago  = gastoRepository.sumValorPagoByMesNumeroEAno(mesNumero, anoPagamento);

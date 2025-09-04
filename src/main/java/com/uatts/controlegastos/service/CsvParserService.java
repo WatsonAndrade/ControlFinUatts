@@ -236,7 +236,7 @@ public class CsvParserService {
         g.setAnoPagamento(ano);
         g.setMesNumero(mes);
         g.setMesPagamento(String.valueOf(mes)); // padroniza como número
-        g.setCategoria("Importado");
+        g.setCategoria("Cartão de Crédito");
         g.setDescricao(descricao);
         g.setValor(valor);
         g.setPago(false);

@@ -15,9 +15,10 @@ export async function listarGastosPaginado(params: {
   pago?: boolean;
   search?: string;
   sort?: string; // ex: "data,desc" | "valor,asc"
+  excludeCategoria?: string;
 }) {
-  const { mesNumero, anoPagamento, page = 0, size = 10, pago, search, sort } = params;
-  const res = await api.get("/gastos/paginado", { params: { mesNumero, anoPagamento, page, size, pago, search, sort } });
+  const { mesNumero, anoPagamento, page = 0, size = 10, pago, search, sort, excludeCategoria } = params;
+  const res = await api.get("/gastos/paginado", { params: { mesNumero, anoPagamento, page, size, pago, search, sort, excludeCategoria } });
   return res.data as Page<Gasto>;
 }
 
@@ -29,6 +30,12 @@ export async function resumoPorCategoria(mesNumero: number, anoPagamento: number
 export async function resumoMensal(mesNumero: number, anoPagamento: number) {
   const res = await api.get("/gastos/resumo", { params: { mesNumero, anoPagamento } });
   return res.data;
+}
+
+export async function listarGastosPorCategoria(params: { mesNumero: number; anoPagamento: number; categoria: string }) {
+  const { mesNumero, anoPagamento, categoria } = params;
+  const res = await api.get("/gastos/por-categoria", { params: { mesNumero, anoPagamento, categoria } });
+  return res.data as Gasto[];
 }
 
 export interface Gasto {
@@ -58,7 +65,7 @@ export interface Page<T> {
 }
 
 // Atualização parcial
-export type AtualizacaoGastoDTO = Partial<Pick<Gasto, "pago" | "categoria" | "descricao">>;
+export type AtualizacaoGastoDTO = Partial<Pick<Gasto, "pago" | "categoria" | "descricao" | "valor">>;
 
 export async function atualizarGastoParcial(id: number, dto: AtualizacaoGastoDTO) {
   const res = await api.patch(`/gastos/${id}`, dto);

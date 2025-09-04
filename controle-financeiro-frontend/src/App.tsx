@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Card from "./components/ui/Card";
 import EditableMoneyCard from "./components/EditableMoneyCard";
+import CartaoCreditoResumo from "./components/CartaoCreditoResumo";
 import { listarGastosPaginado, resumoMensal } from "./services/gastos";
 import AddGastoModal from "./components/AddGastoModal";
 import { getReceita, setReceita } from "./utils/receitaStorage";
@@ -15,6 +16,7 @@ export default function App() {
   const [despesaTotal, setDespesaTotal] = useState(0);   // da API (gastos)
   const saldo = receitaTotal - despesaTotal;
   const [addOpen, setAddOpen] = useState(false);
+  const [refreshToken, setRefreshToken] = useState(0);
 
   async function carregarResumo() {
     const r = await resumoMensal(mesNumero, anoPagamento); // retorna resumo de GASTOS
@@ -48,6 +50,7 @@ export default function App() {
         onImported={() => {
           carregarResumo();
           carregarGastos();
+          setRefreshToken((x) => x + 1);
         }}
       />
 
@@ -72,16 +75,23 @@ export default function App() {
           />
         </div>
 
-        <div className="flex justify-end">
-          <button
-            onClick={() => setAddOpen(true)}
-            className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
-          >
-            + Novo Gasto
-          </button>
-        </div>
+        {/* Resumo de Cartão de Crédito com opção de detalhar */}
+        <CartaoCreditoResumo
+          mesNumero={mesNumero}
+          anoPagamento={anoPagamento}
+          refreshToken={refreshToken}
+          onChanged={() => {
+            carregarResumo();
+          }}
+        />
 
-        <GastosTable mesNumero={mesNumero} anoPagamento={anoPagamento} />
+        <GastosTable
+          mesNumero={mesNumero}
+          anoPagamento={anoPagamento}
+          excludeCategoria="Cartão de Crédito"
+          refreshToken={refreshToken}
+          onAddNew={() => setAddOpen(true)}
+        />
       </main>
 
       <AddGastoModal
@@ -92,6 +102,7 @@ export default function App() {
         onCreated={() => {
           carregarResumo();
           carregarGastos();
+          setRefreshToken((x) => x + 1);
         }}
       />
     </div>

@@ -58,4 +58,21 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
 
         List<Gasto> findByMesNumeroIsNullOrMesPagamentoIsNull();
 
+        List<Gasto> findByMesNumeroAndAnoPagamentoAndCategoria(Integer mesNumero, Integer anoPagamento, String categoria);
+
+        List<Gasto> findByCategoriaIgnoreCase(String categoria);
+
+        @Query("""
+                select g from Gasto g
+                where g.mesNumero = :mes and g.anoPagamento = :ano
+                  and (:pago is null or g.pago = :pago)
+                  and (g.categoria is null or lower(g.categoria) <> lower(:categoria))
+                """)
+        Page<Gasto> pageByPeriodoExcluindoCategoria(
+                @Param("mes") Integer mes,
+                @Param("ano") Integer ano,
+                @Param("pago") Boolean pago,
+                @Param("categoria") String categoria,
+                Pageable pageable);
+
 }

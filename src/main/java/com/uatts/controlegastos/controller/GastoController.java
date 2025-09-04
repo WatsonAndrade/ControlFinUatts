@@ -117,10 +117,23 @@ public class GastoController {
             @RequestParam Integer mesNumero,
             @RequestParam Integer anoPagamento,
             @RequestParam(required = false) Boolean pago,
+            @RequestParam(required = false) String excludeCategoria,
             Pageable pageable // aceita ?page=&size=&sort=
     ) {
-        Page<Gasto> page = gastoService.buscarPaginado(mesNumero, anoPagamento, pago, pageable);
+        Page<Gasto> page = (excludeCategoria != null && !excludeCategoria.isBlank())
+                ? gastoService.buscarPaginadoExcluindoCategoria(mesNumero, anoPagamento, pago, excludeCategoria, pageable)
+                : gastoService.buscarPaginado(mesNumero, anoPagamento, pago, pageable);
         return ResponseEntity.ok(page);
+    }
+
+    @GetMapping("/por-categoria")
+    public ResponseEntity<List<Gasto>> listarPorCategoria(
+            @RequestParam Integer mesNumero,
+            @RequestParam Integer anoPagamento,
+            @RequestParam String categoria
+    ) {
+        List<Gasto> gastos = gastoService.buscarPorCategoria(mesNumero, anoPagamento, categoria);
+        return ResponseEntity.ok(gastos);
     }
 
     @GetMapping("/resumo")

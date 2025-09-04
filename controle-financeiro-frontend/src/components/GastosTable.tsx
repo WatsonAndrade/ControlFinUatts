@@ -15,9 +15,12 @@ interface Props {
   mesNumero: number;
   anoPagamento: number;
   pageSize?: number; // valor inicial (default 10)
+  excludeCategoria?: string; // oculta lançamentos desta categoria
+  refreshToken?: number; // força recarregar (após criar/editar)
+  onAddNew?: () => void; // abre modal de novo gasto
 }
 
-export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: Props) {
+export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10, excludeCategoria, refreshToken, onAddNew }: Props) {
   const [page, setPage] = useState<Page<Gasto> | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
 
@@ -28,11 +31,12 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("valor");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [pagoFilter, setPagoFilter] = useState<"all" | "paid" | "unpaid">("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // edição inline por id
-  const [editing, setEditing] = useState<Record<number, { descricao?: string; categoria?: string | null }>>({});
+  const [editing, setEditing] = useState<Record<number, { descricao?: string; categoria?: string | null; valor?: string }>>({});
 
   // mapeia chave da UI -> campo real do backend
   const SORT_MAP: Record<SortKey, string> = { valor: "valor" };
@@ -49,6 +53,8 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
         size: pageSizeState,       // usa o estado atual
         // search: search || undefined, // habilitar quando o backend aceitar
         sort: sortParam,           // seguro: "valor,asc|desc"
+        excludeCategoria: excludeCategoria || undefined,
+        pago: pagoFilter === "all" ? undefined : pagoFilter === "paid",
       });
       setPage(data);
     } catch (e: any) {
@@ -61,17 +67,17 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
   // reset para a primeira página ao mudar filtros
   useEffect(() => {
     setPageIndex(0);
-  }, [mesNumero, anoPagamento, search, sortParam, pageSizeState]);
+  }, [mesNumero, anoPagamento, search, sortParam, pageSizeState, refreshToken, pagoFilter]);
 
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mesNumero, anoPagamento, pageIndex, sortParam, pageSizeState]);
+  }, [mesNumero, anoPagamento, pageIndex, sortParam, pageSizeState, pagoFilter]);
 
   function startEdit(g: Gasto) {
     setEditing((prev) => ({
       ...prev,
-      [g.id]: { descricao: g.descricao, categoria: g.categoria ?? "" },
+      [g.id]: { descricao: g.descricao, categoria: g.categoria ?? "", valor: String(g.valor) },
     }));
   }
 
@@ -86,9 +92,13 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
     const draft = editing[id];
     if (!draft) return;
 
-    const dto: Partial<Pick<Gasto, "descricao" | "categoria">> = {};
+    const dto: Partial<Pick<Gasto, "descricao" | "categoria" | "valor">> = {};
     if (draft.descricao !== undefined) dto.descricao = draft.descricao;
     if (draft.categoria !== undefined) dto.categoria = draft.categoria || null;
+    if (draft.valor !== undefined) {
+      const parsed = Number(String(draft.valor).replace(/\./g, "").replace(/,/g, "."));
+      if (Number.isFinite(parsed)) dto.valor = Number(parsed.toFixed(2));
+    }
 
     try {
       await atualizarGastoParcial(id, dto);
@@ -140,9 +150,35 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
           >
             Buscar
           </button>
+          <label className="text-sm text-zinc-300 ml-2">Ordenar por</label>
+          <select
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as SortKey)}
+            className="rounded-lg bg-zinc-800 px-3 py-2 text-sm text-zinc-100 ring-1 ring-zinc-700"
+          >
+            <option value="valor">Valor</option>
+          </select>
+          <select
+            value={sortDir}
+            onChange={(e) => setSortDir(e.target.value as SortDir)}
+            className="rounded-lg bg-zinc-800 px-3 py-2 text-sm text-zinc-100 ring-1 ring-zinc-700"
+          >
+            <option value="desc">Desc</option>
+            <option value="asc">Asc</option>
+          </select>
+          <label className="text-sm text-zinc-300 ml-2">Exibir</label>
+          <select
+            value={pagoFilter}
+            onChange={(e) => setPagoFilter(e.target.value as any)}
+            className="rounded-lg bg-zinc-800 px-3 py-2 text-sm text-zinc-100 ring-1 ring-zinc-700"
+          >
+            <option value="all">Todos</option>
+            <option value="paid">Pagos</option>
+            <option value="unpaid">Não pagos</option>
+          </select>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 hidden">
           <label className="text-sm text-zinc-300">Ordenar por</label>
           <select
             value={sortKey}
@@ -161,7 +197,7 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
           </select>
 
           {/* Itens por página */}
-          <div className="ml-2 flex items-center gap-2">
+          <div className="ml-2 flex items-center gap-2 hidden">
             <label className="text-sm text-zinc-300">Itens por página</label>
             <select
               value={pageSizeState}
@@ -178,6 +214,17 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
             </select>
           </div>
         </div>
+
+        {onAddNew && (
+          <div className="flex justify-end">
+            <button
+              onClick={onAddNew}
+              className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
+            >
+              + Novo Gasto
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tabela */}
@@ -197,9 +244,7 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Categoria
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Valor
-              </th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">Valor</th>
               <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Pago
               </th>
@@ -259,7 +304,6 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
                           if (e.key === "Enter") saveEdit(g.id);
                           if (e.key === "Escape") cancelEdit(g.id);
                         }}
-                        onBlur={() => saveEdit(g.id)}
                         className="w-full rounded bg-zinc-800 px-2 py-1 text-zinc-100 ring-1 ring-zinc-700 outline-none"
                       />
                     ) : (
@@ -295,7 +339,6 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
                           if (e.key === "Enter") saveEdit(g.id);
                           if (e.key === "Escape") cancelEdit(g.id);
                         }}
-                        onBlur={() => saveEdit(g.id)}
                         className="w-full rounded bg-zinc-800 px-2 py-1 text-zinc-100 ring-1 ring-zinc-700 outline-none"
                       />
                     ) : (
@@ -305,7 +348,24 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
 
                   {/* Valor */}
                   <td className="px-4 py-3 text-right text-sm font-semibold text-zinc-100">
-                    {formatMoney(g.valor)}
+                    {edit ? (
+                      <input
+                        value={edit.valor ?? ""}
+                        onChange={(e) =>
+                          setEditing((prev) => ({
+                            ...prev,
+                            [g.id]: { ...prev[g.id], valor: e.target.value },
+                          }))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEdit(g.id);
+                          if (e.key === "Escape") cancelEdit(g.id);
+                        }}
+                        className="w-28 rounded bg-zinc-800 px-2 py-1 text-zinc-100 ring-1 ring-zinc-700 outline-none text-right"
+                      />
+                    ) : (
+                      <span>{formatMoney(g.valor)}</span>
+                    )}
                   </td>
 
                   {/* Pago */}
@@ -404,3 +464,5 @@ function formatMesAno(m?: number, a?: number) {
 function formatMoney(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
+
+
