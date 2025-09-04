@@ -192,6 +192,9 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
                 Descrição
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                Parcela
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Categoria
               </th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">
@@ -262,6 +265,19 @@ export default function GastosTable({ mesNumero, anoPagamento, pageSize = 10 }: 
                     ) : (
                       <span className="text-zinc-100">{g.descricao}</span>
                     )}
+                  </td>
+
+                  {/* Parcela */}
+                  <td className="px-4 py-3 text-sm text-zinc-300">
+                    {(() => {
+                      const anyG = g as any;
+                      const atual = anyG.parcelaAtual;
+                      const total = anyG.totalParcelas;
+                      if (atual != null && atual !== "" && Number(atual) > 0) {
+                        return `Parcela ${total != null && total !== "" ? `${atual}/${total}` : String(atual)}`;
+                      }
+                      return "-";
+                    })()}
                   </td>
 
                   {/* Categoria */}

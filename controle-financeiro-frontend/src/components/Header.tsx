@@ -21,6 +21,12 @@ export default function Header({
   onChangeAno,
   onImported,
 }: Props) {
+  // Gera anos dinâmicos incluindo futuros (±5 do ano atual/selecionado)
+  const currentYear = new Date().getFullYear();
+  const minYear = Math.min(anoPagamento - 5, currentYear - 5);
+  const maxYear = Math.max(anoPagamento + 5, currentYear + 5);
+  const anos: number[] = [];
+  for (let y = maxYear; y >= minYear; y--) anos.push(y);
   return (
     <header className="bg-zinc-800 shadow-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
       <h1 className="text-2xl font-semibold text-white">Controle Financeiro</h1>
@@ -41,7 +47,7 @@ export default function Header({
           value={anoPagamento}
           onChange={(e) => onChangeAno(Number(e.target.value))}
         >
-          {Array.from({ length: 6 }, (_, k) => new Date().getFullYear() - k).map((a) => (
+          {anos.map((a) => (
             <option key={a} value={a}>{a}</option>
           ))}
         </select>

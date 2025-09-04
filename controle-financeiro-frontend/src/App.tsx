@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import Card from "./components/ui/Card";
 import EditableMoneyCard from "./components/EditableMoneyCard";
 import { listarGastosPaginado, resumoMensal } from "./services/gastos";
+import AddGastoModal from "./components/AddGastoModal";
 import { getReceita, setReceita } from "./utils/receitaStorage";
 import GastosTable from "./components/GastosTable";
 
@@ -13,6 +14,7 @@ export default function App() {
   const [receitaTotal, setReceitaTotal] = useState(0);   // manual (localStorage por mês/ano)
   const [despesaTotal, setDespesaTotal] = useState(0);   // da API (gastos)
   const saldo = receitaTotal - despesaTotal;
+  const [addOpen, setAddOpen] = useState(false);
 
   async function carregarResumo() {
     const r = await resumoMensal(mesNumero, anoPagamento); // retorna resumo de GASTOS
@@ -70,8 +72,28 @@ export default function App() {
           />
         </div>
 
+        <div className="flex justify-end">
+          <button
+            onClick={() => setAddOpen(true)}
+            className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
+          >
+            + Novo Gasto
+          </button>
+        </div>
+
         <GastosTable mesNumero={mesNumero} anoPagamento={anoPagamento} />
       </main>
+
+      <AddGastoModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        mesNumero={mesNumero}
+        anoPagamento={anoPagamento}
+        onCreated={() => {
+          carregarResumo();
+          carregarGastos();
+        }}
+      />
     </div>
   );
 }

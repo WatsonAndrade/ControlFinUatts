@@ -40,6 +40,9 @@ export interface Gasto {
   categoria?: string | null;
   valor: number;
   pago: boolean;
+  parcelaAtual?: number | null;
+  totalParcelas?: number | null;
+  referenteA?: string | null;
 }
 
 // Tipagem de página (compatível com Spring Pageable)
@@ -64,4 +67,23 @@ export async function atualizarGastoParcial(id: number, dto: AtualizacaoGastoDTO
 
 export async function excluirGasto(id: number) {
   await api.delete(`/gastos/${id}`);
+}
+
+// Criação de gasto manual
+export interface CriarGastoDTO {
+  mesNumero: number;
+  anoPagamento: number;
+  descricao: string;
+  categoria: string; // backend exige @NotBlank
+  valor: number;
+  pago?: boolean;
+  referenteA?: string | null;
+  totalParcelas?: number | null;
+  parcelaAtual?: number | null;
+  mesPagamento?: string | null;
+}
+
+export async function criarGasto(dto: CriarGastoDTO) {
+  const res = await api.post("/gastos", dto);
+  return res.data as Gasto;
 }
