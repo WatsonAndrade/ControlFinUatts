@@ -14,7 +14,6 @@ export default function App() {
 
   const [receitaTotal, setReceitaTotal] = useState(0);   // manual (localStorage por mês/ano)
   const [despesaTotal, setDespesaTotal] = useState(0);   // da API (gastos)
-  const saldo = receitaTotal - despesaTotal;
   const [addOpen, setAddOpen] = useState(false);
   const [refreshToken, setRefreshToken] = useState(0);
   const [error, setError] = useState<string | null>(null);
