@@ -11,6 +11,11 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://securetoken.google.com/${firebase.project-id}
 
 # Configurações da aplicação
 app:
@@ -18,3 +23,17 @@ app:
     # Dia de fechamento da fatura do cartão (1-31). Usado para definir a competência
     # das compras importadas via CSV de cartão. Ajuste conforme seu cartão.
     dia-fechamento: 3
+
+# Firebase / Resource Server
+firebase:
+  # Usa FIREBASE_PROJECT_ID do ambiente; se ausente, aplica o seu projectId por padrão
+  project-id: ${FIREBASE_PROJECT_ID:controlefinanceiro-22c87}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  endpoint:
+    health:
+      show-details: always

@@ -1,4 +1,5 @@
 import React from "react";
+import { useAuth } from "../auth/AuthProvider";
 import ImportCsv from "./ImportCsv";
 
 type Props = {
@@ -21,6 +22,7 @@ export default function Header({
   onChangeAno,
   onImported,
 }: Props) {
+  const { user, logout } = useAuth();
   // Gera anos dinâmicos incluindo futuros (±5 do ano atual/selecionado)
   const currentYear = new Date().getFullYear();
   const minYear = Math.min(anoPagamento - 5, currentYear - 5);
@@ -53,6 +55,13 @@ export default function Header({
         </select>
 
         <ImportCsv onImported={onImported} />
+        {user && (
+          <div className="flex items-center gap-2 ml-2">
+            {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-6 h-6 rounded-full" />}
+            <span className="text-sm text-zinc-300">{user.displayName || user.email}</span>
+            <button onClick={logout} className="ml-2 text-xs px-2 py-1 rounded ring-1 ring-zinc-700 hover:bg-zinc-800">Sair</button>
+          </div>
+        )}
       </div>
     </header>
   );

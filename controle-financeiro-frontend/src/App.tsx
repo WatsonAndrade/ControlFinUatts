@@ -17,15 +17,29 @@ export default function App() {
   const saldo = receitaTotal - despesaTotal;
   const [addOpen, setAddOpen] = useState(false);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   async function carregarResumo() {
-    const r = await resumoMensal(mesNumero, anoPagamento); // retorna resumo de GASTOS
-    setDespesaTotal(r.total);
+    try {
+      const r = await resumoMensal(mesNumero, anoPagamento); // retorna resumo de GASTOS
+      setDespesaTotal(r.total ?? 0);
+      setError(null);
+    } catch (e: any) {
+      console.error("[ResumoMensal]", e?.response?.status, e?.response?.data || e?.message);
+      setError(e?.response?.data || e?.message || "Falha ao carregar resumo.");
+      setDespesaTotal(0);
+    }
   }
 
   async function carregarGastos() {
-    const page = await listarGastosPaginado({ mesNumero, anoPagamento, page: 0, size: 10 });
-    console.log("Gastos paginados:", page);
+    try {
+      const page = await listarGastosPaginado({ mesNumero, anoPagamento, page: 0, size: 10 });
+      console.log("Gastos paginados:", page);
+      setError(null);
+    } catch (e: any) {
+      console.error("[GastosPaginado]", e?.response?.status, e?.response?.data || e?.message);
+      setError(e?.response?.data || e?.message || "Falha ao carregar gastos.");
+    }
   }
 
   // ao mudar mês/ano: carrega receita do storage e dados do backend
@@ -55,6 +69,11 @@ export default function App() {
       />
 
       <main className="p-6 max-w-6xl mx-auto space-y-6">
+        {error && (
+          <div className="rounded-lg bg-red-900/30 text-red-200 ring-1 ring-red-800 px-4 py-2">
+            Erro ao carregar dados: {String(error)}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <EditableMoneyCard
             title="Receita Mensal"

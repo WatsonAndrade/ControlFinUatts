@@ -46,6 +46,9 @@ public class Gasto {
 
     @Column
     private Integer parcelaAtual;
+
+    @Column(name = "user_id", length = 128)
+    private String userId;
     // Getters e Setters explícitos (evita depender de Lombok no build)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -83,6 +86,9 @@ public class Gasto {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cartao_id")
     private Cartao cartao;
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public Cartao getCartao() { return cartao; }
     public void setCartao(Cartao cartao) { this.cartao = cartao; }

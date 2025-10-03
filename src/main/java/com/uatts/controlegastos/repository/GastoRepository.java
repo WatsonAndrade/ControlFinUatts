@@ -18,23 +18,23 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
         @Query("""
                 select coalesce(sum(case when g.valor > 0 then g.valor else 0 end), 0)
                 from Gasto g
-                where g.mesNumero = :mes and g.anoPagamento = :ano
+                where g.mesNumero = :mes and g.anoPagamento = :ano and g.userId = :uid
                 """)
-        double sumValorByMesNumeroEAno(@Param("mes") Integer mes, @Param("ano") Integer ano);
+        double sumValorByMesNumeroEAnoAndUser(@Param("mes") Integer mes, @Param("ano") Integer ano, @Param("uid") String uid);
 
         @Query("""
                 select coalesce(sum(case when g.pago = true and g.valor > 0 then g.valor else 0 end), 0)
                 from Gasto g
-                where g.mesNumero = :mes and g.anoPagamento = :ano
+                where g.mesNumero = :mes and g.anoPagamento = :ano and g.userId = :uid
                 """)
-        double sumValorPagoByMesNumeroEAno(@Param("mes") Integer mes, @Param("ano") Integer ano);
+        double sumValorPagoByMesNumeroEAnoAndUser(@Param("mes") Integer mes, @Param("ano") Integer ano, @Param("uid") String uid);
 
         @Query("""
                 select count(g)
                 from Gasto g
-                where g.mesNumero = :mes and g.anoPagamento = :ano and g.valor > 0
+                where g.mesNumero = :mes and g.anoPagamento = :ano and g.valor > 0 and g.userId = :uid
                 """)
-        long countByMesNumeroEAno(@Param("mes") Integer mes, @Param("ano") Integer ano);
+        long countByMesNumeroEAnoAndUser(@Param("mes") Integer mes, @Param("ano") Integer ano, @Param("uid") String uid);
 
         @Query("""
                 select coalesce(g.categoria, 'Sem Categoria') as categoria,
@@ -44,9 +44,10 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
                 from Gasto g
                 where (:mes is null or g.mesNumero = :mes)
                 and (:ano is null or g.anoPagamento = :ano)
+                and g.userId = :uid
                 group by coalesce(g.categoria, 'Sem Categoria')
                 """)
-        List<Object[]> resumoPorCategoria(@Param("mes") Integer mes, @Param("ano") Integer ano);
+        List<Object[]> resumoPorCategoriaUser(@Param("mes") Integer mes, @Param("ano") Integer ano, @Param("uid") String uid);
 
         List<Gasto> findByMesPagamentoIgnoreCaseAndAnoPagamento(String mesPagamento, Integer anoPagamento);
 
@@ -54,19 +55,20 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
 
         List<Gasto> findByMesNumeroAndAnoPagamento(Integer mesNumero, Integer anoPagamento);
 
-        Page<Gasto> findByMesNumeroAndAnoPagamento(Integer mesNumero, Integer anoPagamento, Pageable pageable);
+        Page<Gasto> findByMesNumeroAndAnoPagamentoAndUserId(Integer mesNumero, Integer anoPagamento, String userId, Pageable pageable);
+        Page<Gasto> findByMesNumeroAndAnoPagamentoAndPagoAndUserId(Integer mesNumero, Integer anoPagamento, boolean pago, String userId, Pageable pageable);
 
         Page<Gasto> findByMesNumeroAndAnoPagamentoAndPago(Integer mesNumero, Integer anoPagamento, boolean pago, Pageable pageable);
 
         List<Gasto> findByMesNumeroIsNullOrMesPagamentoIsNull();
 
-        List<Gasto> findByMesNumeroAndAnoPagamentoAndCategoria(Integer mesNumero, Integer anoPagamento, String categoria);
+        List<Gasto> findByMesNumeroAndAnoPagamentoAndCategoriaAndUserId(Integer mesNumero, Integer anoPagamento, String categoria, String userId);
 
         List<Gasto> findByCategoriaIgnoreCase(String categoria);
 
         @Query("""
                 select g from Gasto g
-                where g.mesNumero = :mes and g.anoPagamento = :ano
+                where g.mesNumero = :mes and g.anoPagamento = :ano and g.userId = :uid
                   and (:pago is null or g.pago = :pago)
                   and (g.categoria is null or lower(g.categoria) <> lower(:categoria))
                 """)
@@ -75,6 +77,7 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
                 @Param("ano") Integer ano,
                 @Param("pago") Boolean pago,
                 @Param("categoria") String categoria,
+                @Param("uid") String uid,
                 Pageable pageable);
 
 }

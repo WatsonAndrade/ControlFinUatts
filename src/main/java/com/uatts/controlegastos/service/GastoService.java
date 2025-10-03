@@ -110,7 +110,8 @@ public class GastoService {
         long cents = Math.round((g.getValor() != null ? g.getValor() : 0.0) * 100.0);
         int parc = g.getParcelaAtual() != null ? g.getParcelaAtual() : 0;
         int tot = g.getTotalParcelas() != null ? g.getTotalParcelas() : 0;
-        return mes + ":" + ano + ":" + desc + ":" + cents + ":" + parc + ":" + tot;
+        String uid = g.getUserId() != null ? g.getUserId() : "";
+        return uid + ":" + mes + ":" + ano + ":" + desc + ":" + cents + ":" + parc + ":" + tot;
     }
 
     public List<Gasto> buscarPorFiltros(String mes, Integer ano, Boolean pago) {
@@ -169,32 +170,32 @@ public class GastoService {
         return gastoRepository.save(gasto);
     }
 
-    public Page<Gasto> buscarPaginado(Integer mesNumero, Integer anoPagamento, Boolean pago, Pageable pageable) {
+    public Page<Gasto> buscarPaginado(String userId, Integer mesNumero, Integer anoPagamento, Boolean pago, Pageable pageable) {
         if (pago != null) {
-            return gastoRepository.findByMesNumeroAndAnoPagamentoAndPago(mesNumero, anoPagamento, pago, pageable);
+            return gastoRepository.findByMesNumeroAndAnoPagamentoAndPagoAndUserId(mesNumero, anoPagamento, pago, userId, pageable);
         }
-        return gastoRepository.findByMesNumeroAndAnoPagamento(mesNumero, anoPagamento, pageable);
+        return gastoRepository.findByMesNumeroAndAnoPagamentoAndUserId(mesNumero, anoPagamento, userId, pageable);
     }
 
-    public Page<Gasto> buscarPaginadoExcluindoCategoria(Integer mesNumero, Integer anoPagamento, Boolean pago, String excluirCategoria, Pageable pageable) {
-        return gastoRepository.pageByPeriodoExcluindoCategoria(mesNumero, anoPagamento, pago, excluirCategoria, pageable);
+    public Page<Gasto> buscarPaginadoExcluindoCategoria(String userId, Integer mesNumero, Integer anoPagamento, Boolean pago, String excluirCategoria, Pageable pageable) {
+        return gastoRepository.pageByPeriodoExcluindoCategoria(mesNumero, anoPagamento, pago, excluirCategoria, userId, pageable);
     }
 
-    public List<Gasto> buscarPorCategoria(Integer mesNumero, Integer anoPagamento, String categoria) {
-        return gastoRepository.findByMesNumeroAndAnoPagamentoAndCategoria(mesNumero, anoPagamento, categoria);
+    public List<Gasto> buscarPorCategoria(String userId, Integer mesNumero, Integer anoPagamento, String categoria) {
+        return gastoRepository.findByMesNumeroAndAnoPagamentoAndCategoriaAndUserId(mesNumero, anoPagamento, categoria, userId);
     }
 
-    public ResumoMensalDTO obterResumoMensal(Integer mesNumero, Integer anoPagamento) {
-        double total      = gastoRepository.sumValorByMesNumeroEAno(mesNumero, anoPagamento);
-        double totalPago  = gastoRepository.sumValorPagoByMesNumeroEAno(mesNumero, anoPagamento);
+    public ResumoMensalDTO obterResumoMensal(String userId, Integer mesNumero, Integer anoPagamento) {
+        double total      = gastoRepository.sumValorByMesNumeroEAnoAndUser(mesNumero, anoPagamento, userId);
+        double totalPago  = gastoRepository.sumValorPagoByMesNumeroEAnoAndUser(mesNumero, anoPagamento, userId);
         double totalAberto = total - totalPago;
-        long quantidade   = gastoRepository.countByMesNumeroEAno(mesNumero, anoPagamento);
+        long quantidade   = gastoRepository.countByMesNumeroEAnoAndUser(mesNumero, anoPagamento, userId);
 
         return new ResumoMensalDTO(mesNumero, anoPagamento, total, totalPago, totalAberto, quantidade);
     }
 
-    public List<CategoriaResumoDTO> obterResumoPorCategoria(Integer mesNumero, Integer anoPagamento) {
-        List<Object[]> rows = gastoRepository.resumoPorCategoria(mesNumero, anoPagamento);
+    public List<CategoriaResumoDTO> obterResumoPorCategoria(String userId, Integer mesNumero, Integer anoPagamento) {
+        List<Object[]> rows = gastoRepository.resumoPorCategoriaUser(mesNumero, anoPagamento, userId);
 
         List<CategoriaResumoDTO> lista = new ArrayList<>();
         for (Object[] r : rows) {

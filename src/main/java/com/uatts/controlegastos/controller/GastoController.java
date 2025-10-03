@@ -86,6 +86,11 @@ public class GastoController {
             @RequestParam(required = false) Long cartaoId,
             @RequestParam(required = false) Integer diaFechamento
     ) {
+        org.springframework.security.core.Authentication authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String uid = null;
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            uid = jwt.getSubject();
+        }
         List<Gasto> gastos;
         Cartao cartao = null;
         if (cartaoId != null) {
@@ -116,6 +121,12 @@ public class GastoController {
         if (cartao != null) {
             for (Gasto g : gastos) {
                 g.setCartao(cartao);
+            }
+        }
+
+        if (uid != null) {
+            for (Gasto g : gastos) {
+                g.setUserId(uid);
             }
         }
 
@@ -179,6 +190,11 @@ public class GastoController {
     ) {
         // 1) Parse com dia de fechamento do cartão (ou override) sem salvar
         List<Gasto> gastos;
+        org.springframework.security.core.Authentication authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String uid = null;
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            uid = jwt.getSubject();
+        }
         Cartao cartao = null;
         if (cartaoId != null) {
             cartao = cartaoRepository.findById(cartaoId).orElse(null);
@@ -236,6 +252,10 @@ public class GastoController {
                 g.setMesPagamento(String.valueOf(mesNumero));
                 g.setAnoPagamento(anoPagamento);
             }
+        }
+
+        if (uid != null) {
+            for (Gasto g : gastos) g.setUserId(uid);
         }
 
         int totalLidas = gastos.size();
@@ -446,9 +466,16 @@ public class GastoController {
             @RequestParam(required = false) String excludeCategoria,
             Pageable pageable // aceita ?page=&size=&sort=
     ) {
+        String uid = null;
+        var authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            uid = jwt.getSubject();
+        }
+        if (uid == null) return ResponseEntity.status(401).build();
+
         Page<Gasto> page = (excludeCategoria != null && !excludeCategoria.isBlank())
-                ? gastoService.buscarPaginadoExcluindoCategoria(mesNumero, anoPagamento, pago, excludeCategoria, pageable)
-                : gastoService.buscarPaginado(mesNumero, anoPagamento, pago, pageable);
+                ? gastoService.buscarPaginadoExcluindoCategoria(uid, mesNumero, anoPagamento, pago, excludeCategoria, pageable)
+                : gastoService.buscarPaginado(uid, mesNumero, anoPagamento, pago, pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -458,7 +485,11 @@ public class GastoController {
             @RequestParam Integer anoPagamento,
             @RequestParam String categoria
     ) {
-        List<Gasto> gastos = gastoService.buscarPorCategoria(mesNumero, anoPagamento, categoria);
+        String uid = null;
+        var authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) uid = jwt.getSubject();
+        if (uid == null) return ResponseEntity.status(401).build();
+        List<Gasto> gastos = gastoService.buscarPorCategoria(uid, mesNumero, anoPagamento, categoria);
         return ResponseEntity.ok(gastos);
     }
 
@@ -466,7 +497,11 @@ public class GastoController {
     public ResponseEntity<ResumoMensalDTO> obterResumoMensal(
             @RequestParam Integer mesNumero,
             @RequestParam Integer anoPagamento) {
-        return ResponseEntity.ok(gastoService.obterResumoMensal(mesNumero, anoPagamento));
+        String uid = null;
+        var authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) uid = jwt.getSubject();
+        if (uid == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(gastoService.obterResumoMensal(uid, mesNumero, anoPagamento));
     }
 
     @GetMapping("/resumo-por-categoria")
@@ -474,7 +509,11 @@ public class GastoController {
             @RequestParam Integer mesNumero,
             @RequestParam Integer anoPagamento
     ) {
-        List<CategoriaResumoDTO> resumo = gastoService.obterResumoPorCategoria(mesNumero, anoPagamento);
+        String uid = null;
+        var authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) uid = jwt.getSubject();
+        if (uid == null) return ResponseEntity.status(401).build();
+        List<CategoriaResumoDTO> resumo = gastoService.obterResumoPorCategoria(uid, mesNumero, anoPagamento);
         return ResponseEntity.ok(resumo);
     }
 

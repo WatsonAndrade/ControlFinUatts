@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Techy Animated Background + Utils */
+
+@layer utilities {
+  @keyframes gradient-move {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes float-slow {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .animate-gradient {
+    /* Paleta roxo bem escuro */
+    background: linear-gradient(125deg,
+      #0f0620 0%,   /* roxo quase preto */
+      #1b1030 25%,
+      #2a1452 50%,  /* deep purple */
+      #3b1a78 75%,
+      #4c1d95 100%
+    );
+    background-size: 300% 300%;
+    animation: gradient-move 14s ease infinite;
+  }
+
+  .glass {
+    @apply bg-zinc-950/70 backdrop-blur-xl ring-1 ring-violet-400/15 shadow-2xl;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(124, 58, 237, 0.45), 0 0 22px rgba(91, 33, 182, 0.35);
+  }
+
+  .orbit {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(24px);
+    opacity: .15;
+    animation: float-slow 10s ease-in-out infinite;
+  }
+
+  .bg-finance-pattern {
+    background-image: url('/finance-pattern.svg');
+    background-size: 64px 64px;
+    opacity: .06;
+    mix-blend-mode: overlay;
+  }
+
+  .hero-float {
+    animation: float-slow 12s ease-in-out infinite;
+  }
+}
