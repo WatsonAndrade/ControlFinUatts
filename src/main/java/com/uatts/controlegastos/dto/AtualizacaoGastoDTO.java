@@ -1,11 +1,6 @@
 package com.uatts.controlegastos.dto;
 
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class AtualizacaoGastoDTO {
 
     @Pattern(regexp = "^(?:[1-9]|1[0-2]|jan(?:eiro)?|fev(?:ereiro)?|mar(?:ço|co)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?)$",
@@ -36,4 +31,32 @@ public class AtualizacaoGastoDTO {
 
     @Min(value = 1, message = "A parcela atual deve ser no mínimo 1.")
     private Integer parcelaAtual;
+
+    // Getters e Setters explícitos
+    public String getMesPagamento() { return mesPagamento; }
+    public void setMesPagamento(String mesPagamento) { this.mesPagamento = mesPagamento; }
+
+    public Integer getAnoPagamento() { return anoPagamento; }
+    public void setAnoPagamento(Integer anoPagamento) { this.anoPagamento = anoPagamento; }
+
+    public String getReferenteA() { return referenteA; }
+    public void setReferenteA(String referenteA) { this.referenteA = referenteA; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public Double getValor() { return valor; }
+    public void setValor(Double valor) { this.valor = valor; }
+
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+
+    public Boolean getPago() { return pago; }
+    public void setPago(Boolean pago) { this.pago = pago; }
+
+    public Integer getTotalParcelas() { return totalParcelas; }
+    public void setTotalParcelas(Integer totalParcelas) { this.totalParcelas = totalParcelas; }
+
+    public Integer getParcelaAtual() { return parcelaAtual; }
+    public void setParcelaAtual(Integer parcelaAtual) { this.parcelaAtual = parcelaAtual; }
 }

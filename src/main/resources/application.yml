@@ -11,3 +11,10 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Configurações da aplicação
+app:
+  cartao:
+    # Dia de fechamento da fatura do cartão (1-31). Usado para definir a competência
+    # das compras importadas via CSV de cartão. Ajuste conforme seu cartão.
+    dia-fechamento: 3

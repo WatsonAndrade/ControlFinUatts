@@ -2,9 +2,7 @@ package com.uatts.controlegastos.model;
 
 import com.uatts.controlegastos.listener.GastoListener;
 import jakarta.persistence.*;
-import lombok.Data;
 
-@Data
 @Entity
 @Table(
         indexes = {
@@ -48,4 +46,44 @@ public class Gasto {
 
     @Column
     private Integer parcelaAtual;
+    // Getters e Setters explícitos (evita depender de Lombok no build)
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getMesPagamento() { return mesPagamento; }
+    public void setMesPagamento(String mesPagamento) { this.mesPagamento = mesPagamento; }
+
+    public Integer getMesNumero() { return mesNumero; }
+    public void setMesNumero(Integer mesNumero) { this.mesNumero = mesNumero; }
+
+    public Integer getAnoPagamento() { return anoPagamento; }
+    public void setAnoPagamento(Integer anoPagamento) { this.anoPagamento = anoPagamento; }
+
+    public String getReferenteA() { return referenteA; }
+    public void setReferenteA(String referenteA) { this.referenteA = referenteA; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public Double getValor() { return valor; }
+    public void setValor(Double valor) { this.valor = valor; }
+
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+
+    public boolean isPago() { return pago; }
+    public void setPago(boolean pago) { this.pago = pago; }
+
+    public Integer getTotalParcelas() { return totalParcelas; }
+    public void setTotalParcelas(Integer totalParcelas) { this.totalParcelas = totalParcelas; }
+
+    public Integer getParcelaAtual() { return parcelaAtual; }
+    public void setParcelaAtual(Integer parcelaAtual) { this.parcelaAtual = parcelaAtual; }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cartao_id")
+    private Cartao cartao;
+
+    public Cartao getCartao() { return cartao; }
+    public void setCartao(Cartao cartao) { this.cartao = cartao; }
 }

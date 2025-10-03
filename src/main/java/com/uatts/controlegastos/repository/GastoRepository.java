@@ -52,6 +52,8 @@ public interface GastoRepository extends JpaRepository<Gasto, Long> {
 
         List<Gasto> findByMesPagamentoIgnoreCaseAndAnoPagamentoAndPago(String mesPagamento, Integer anoPagamento, boolean pago);
 
+        List<Gasto> findByMesNumeroAndAnoPagamento(Integer mesNumero, Integer anoPagamento);
+
         Page<Gasto> findByMesNumeroAndAnoPagamento(Integer mesNumero, Integer anoPagamento, Pageable pageable);
 
         Page<Gasto> findByMesNumeroAndAnoPagamentoAndPago(Integer mesNumero, Integer anoPagamento, boolean pago, Pageable pageable);

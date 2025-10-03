@@ -16,8 +16,9 @@ import java.util.regex.Pattern;
 @Service
 public class CsvParserService {
 
-    // dia de fechamento da fatura (ex.: fecha dia 3)
-    private static final int DIA_FECHAMENTO = 3;
+    // dia de fechamento da fatura (configurável via application.yml: app.cartao.dia-fechamento)
+    @org.springframework.beans.factory.annotation.Value("${app.cartao.dia-fechamento:3}")
+    private int diaFechamento;
 
     // detecta "Parcela X/Y"
     private static final Pattern PARCELA_PATTERN = Pattern.compile("(?i)\\bparcela\\s*(\\d+)\\/(\\d+)\\b");
@@ -46,6 +47,10 @@ public class CsvParserService {
     }
 
     public List<Gasto> parse(String csvText) {
+        return parseWithDiaFechamento(csvText, this.diaFechamento);
+    }
+
+    public List<Gasto> parseWithDiaFechamento(String csvText, int diaFechamentoEfetivo) {
         List<Gasto> gastos = new ArrayList<>();
         // mapa de reembolsos (estornos/cancelamentos) por descricao normalizada
         java.util.Map<String, java.util.List<Double>> reembolsos = prepararReembolsos(csvText);
@@ -80,7 +85,7 @@ public class CsvParserService {
                 } catch (NumberFormatException e) {
                     continue; // linha malformada
                 }
-                // ignora linhas negativas (reembolsos) e não-despesas
+                // ignora linhas negativas (reembolsos) e n�o-despesas
                 if (valor <= 0.0) continue;
 
                 // Se existir reembolso correspondente para esta compra e valor, ignora a compra
@@ -102,7 +107,7 @@ public class CsvParserService {
                 } catch (Exception e) {
                     continue; // data inválida
                 }
-                LocalDate competenciaBase = calcularCompetencia(compra, DIA_FECHAMENTO);
+                LocalDate competenciaBase = calcularCompetencia(compra, diaFechamentoEfetivo);
 
                 // 4) parcelas
                 Integer parcelaAtual = null;
@@ -247,3 +252,4 @@ public class CsvParserService {
         return g;
     }
 }
+

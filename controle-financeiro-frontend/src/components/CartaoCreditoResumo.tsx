@@ -3,6 +3,7 @@ import {
   resumoPorCategoria,
   listarGastosPorCategoria,
   atualizarGastoParcial,
+  excluirGasto,
   type Gasto,
 } from "../services/gastos";
 
@@ -58,6 +59,14 @@ export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged
     onChanged?.();
   }
 
+  async function handleDelete(g: Gasto) {
+    if (!confirm(`Excluir "${g.descricao}"?`)) return;
+    await excluirGasto(g.id);
+    await carregarDetalhes();
+    await carregarResumo();
+    onChanged?.();
+  }
+
   const totalFmt = useMemo(() => formatMoney(total), [total]);
 
   return (
@@ -94,6 +103,7 @@ export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">Parcela</th>
                       <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">Valor</th>
                       <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-zinc-400">Pago</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800 bg-zinc-950">
@@ -114,6 +124,9 @@ export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged
                         <td className="px-4 py-3 text-right text-sm font-semibold text-zinc-100">{formatMoney(g.valor)}</td>
                         <td className="px-4 py-3 text-center">
                           <input type="checkbox" className="h-4 w-4 accent-indigo-500" checked={g.pago} onChange={() => togglePago(g)} />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button onClick={() => handleDelete(g)} className="rounded px-2 py-1 text-sm ring-1 ring-red-700 hover:bg-red-700/10">Excluir</button>
                         </td>
                       </tr>
                     ))}

@@ -57,27 +57,60 @@ public class GastoService {
     }
 
     public List<Gasto> filtrarDuplicados(List<Gasto> novosGastos) {
-        List<Gasto> gastosFiltrados = new ArrayList<>();
-
-        for (Gasto novo : novosGastos) {
-            List<Gasto> existentes = gastoRepository.findByMesPagamentoIgnoreCaseAndAnoPagamento(
-                    novo.getMesPagamento(), novo.getAnoPagamento()
-            );
-
-            boolean duplicado = existentes.stream().anyMatch(existente ->
-                    existente.getDescricao().equalsIgnoreCase(novo.getDescricao()) &&
-                            existente.getParcelaAtual() != null &&
-                            existente.getParcelaAtual().equals(novo.getParcelaAtual()) &&
-                            existente.getTotalParcelas() != null &&
-                            existente.getTotalParcelas().equals(novo.getTotalParcelas())
-            );
-
-            if (!duplicado) {
-                gastosFiltrados.add(novo);
-            }
+        // Agrupa por (mesNumero, ano) para buscar existentes em lote
+        java.util.Map<String, List<Gasto>> porPeriodo = new java.util.HashMap<>();
+        for (Gasto g : novosGastos) {
+            Integer mes = g.getMesNumero();
+            Integer ano = g.getAnoPagamento();
+            String key = (mes == null ? "" : mes.toString()) + ":" + (ano == null ? "" : ano.toString());
+            porPeriodo.computeIfAbsent(key, k -> new ArrayList<>()).add(g);
         }
 
-        return gastosFiltrados;
+        // Constrói um índice de chaves únicas a partir do banco por período
+        java.util.Set<String> chavesExistentes = new java.util.HashSet<>();
+        for (String k : porPeriodo.keySet()) {
+            String[] parts = k.split(":", -1);
+            Integer mes = parts[0].isEmpty() ? null : Integer.parseInt(parts[0]);
+            Integer ano = parts[1].isEmpty() ? null : Integer.parseInt(parts[1]);
+            if (mes == null || ano == null) continue;
+            List<Gasto> existentes = gastoRepository.findByMesNumeroAndAnoPagamento(mes, ano);
+            for (Gasto e : existentes) chavesExistentes.add(signature(e));
+        }
+
+        // Agora filtra novos removendo duplicados contra o banco e dentro do próprio lote
+        java.util.Set<String> chavesNoLote = new java.util.HashSet<>();
+        List<Gasto> result = new ArrayList<>();
+        for (Gasto g : novosGastos) {
+            String sig = signature(g);
+            if (chavesExistentes.contains(sig)) {
+                continue; // já existe no banco
+            }
+            if (chavesNoLote.contains(sig)) {
+                continue; // duplicado dentro do mesmo CSV
+            }
+            chavesNoLote.add(sig);
+            result.add(g);
+        }
+        return result;
+    }
+
+    private String normalize(String s) {
+        if (s == null) return "";
+        String t = s.trim().toLowerCase();
+        t = t.replace('"', ' ').replace('\'', ' ');
+        t = t.replaceAll("\\s+", " ");
+        return t;
+    }
+
+    private String signature(Gasto g) {
+        // chave: periodo + descricao normalizada + valor (2 casas) + parcela info
+        int mes = g.getMesNumero() != null ? g.getMesNumero() : -1;
+        int ano = g.getAnoPagamento() != null ? g.getAnoPagamento() : -1;
+        String desc = normalize(g.getDescricao());
+        long cents = Math.round((g.getValor() != null ? g.getValor() : 0.0) * 100.0);
+        int parc = g.getParcelaAtual() != null ? g.getParcelaAtual() : 0;
+        int tot = g.getTotalParcelas() != null ? g.getTotalParcelas() : 0;
+        return mes + ":" + ano + ":" + desc + ":" + cents + ":" + parc + ":" + tot;
     }
 
     public List<Gasto> buscarPorFiltros(String mes, Integer ano, Boolean pago) {
