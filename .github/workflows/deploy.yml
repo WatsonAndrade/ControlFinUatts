@@ -21,8 +21,8 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER_API: ${{ secrets.DEPLOY_USER_API }}
         run: |
-          ssh -o StrictHostKeyChecking=no $DEPLOY_USER_API@$DEPLOY_HOST "cd /home/uatts-api/htdocs/api.uatts.site && git pull && docker compose --env-file .env -f docker-compose.cloudpanel.yml build --pull && docker compose --env-file .env -f docker-compose.cloudpanel.yml up -d"
-
+          ssh -o StrictHostKeyChecking=no $DEPLOY_USER_API@$DEPLOY_HOST \
+            "cd /home/uatts-api/htdocs/api.uatts.site && docker compose --env-file .env -f docker-compose.cloudpanel.yml build --pull && docker compose --env-file .env -f docker-compose.cloudpanel.yml up -d"
       - name: Deploy Frontend (Vite)
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
