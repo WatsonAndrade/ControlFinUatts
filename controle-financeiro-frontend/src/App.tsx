@@ -12,7 +12,7 @@ export default function App() {
   const [mesNumero, setMesNumero] = useState<number>(new Date().getMonth() + 1);
   const [anoPagamento, setAnoPagamento] = useState<number>(new Date().getFullYear());
 
-  const [receitaTotal, setReceitaTotal] = useState(0);   // manual (localStorage por mês/ano)
+  const [receitaTotal, setReceitaTotal] = useState(0);   // manual (localStorage por mÃªs/ano)
   const [despesaTotal, setDespesaTotal] = useState(0);   // da API (gastos)
   const [addOpen, setAddOpen] = useState(false);
   const [refreshToken, setRefreshToken] = useState(0);
@@ -41,7 +41,7 @@ export default function App() {
     }
   }
 
-  // ao mudar mês/ano: carrega receita do storage e dados do backend
+  // ao mudar mÃªs/ano: carrega receita do storage e dados do backend
   useEffect(() => {
     setReceitaTotal(getReceita(anoPagamento, mesNumero));
     carregarResumo();
@@ -54,7 +54,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0f14] text-zinc-100">
+    <div className="min-h-screen bg-[#0d0f14] text-zinc-100 overflow-x-hidden">
       <Header
         mesNumero={mesNumero}
         anoPagamento={anoPagamento}
@@ -67,7 +67,7 @@ export default function App() {
         }}
       />
 
-      <main className="p-6 max-w-6xl mx-auto space-y-6">
+      <main className="w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         {error && (
           <div className="rounded-lg bg-red-900/30 text-red-200 ring-1 ring-red-800 px-4 py-2">
             Erro ao carregar dados: {String(error)}
@@ -93,7 +93,7 @@ export default function App() {
           />
         </div>
 
-        {/* Resumo de Cartão de Crédito com opção de detalhar */}
+        {/* Resumo de CartÃ£o de CrÃ©dito com opÃ§Ã£o de detalhar */}
         <CartaoCreditoResumo
           mesNumero={mesNumero}
           anoPagamento={anoPagamento}
@@ -106,7 +106,7 @@ export default function App() {
         <GastosTable
           mesNumero={mesNumero}
           anoPagamento={anoPagamento}
-          excludeCategoria="Cartão de Crédito"
+          excludeCategoria="CartÃ£o de CrÃ©dito"
           refreshToken={refreshToken}
           onAddNew={() => setAddOpen(true)}
         />
@@ -126,3 +126,5 @@ export default function App() {
     </div>
   );
 }
+
+

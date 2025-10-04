@@ -10,11 +10,11 @@ import {
 type Props = {
   mesNumero: number;
   anoPagamento: number;
-  onChanged?: () => void; // para atualizar resumo/tabela externa ao salvar/alterar
-  refreshToken?: number; // força recarregar resumo de fora
+  onChanged?: () => void;
+  refreshToken?: number;
 };
 
-const CATEGORIA_CARTAO = "Cartão de Crédito"; // categoria usada para lançamentos do cartão
+const CATEGORIA_CARTAO = "Cartão de Crédito";
 
 export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged, refreshToken }: Props) {
   const [total, setTotal] = useState<number>(0);
@@ -43,7 +43,6 @@ export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged
 
   useEffect(() => {
     carregarResumo();
-    // fecha e limpa quando muda o período
     setOpen(false);
     setItens([]);
   }, [mesNumero, anoPagamento, refreshToken]);
@@ -70,66 +69,86 @@ export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged
   const totalFmt = useMemo(() => formatMoney(total), [total]);
 
   return (
-    <div className="rounded-xl p-6 shadow-lg bg-indigo-900/40 ring-1 ring-indigo-800">
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl bg-indigo-900/40 p-6 ring-1 ring-indigo-800">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="text-sm text-zinc-300">Cartão de Crédito</div>
-          <div className="mt-1 text-3xl font-bold">{totalFmt}</div>
-          <div className="text-xs text-zinc-400 mt-1">{quantidade} lançamentos</div>
+          <div className="mt-1 text-3xl font-bold text-zinc-100">{totalFmt}</div>
+          <div className="mt-1 text-xs text-zinc-400">{quantidade} lançamentos</div>
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-sm"
+          className="w-full rounded-lg bg-zinc-800 px-3 py-2 text-sm font-medium text-zinc-100 transition hover:bg-zinc-700 sm:w-auto"
         >
           Ver detalhes
         </button>
       </div>
 
-      {/* Modal */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
-          <div className="relative z-10 w-[95vw] max-w-4xl rounded-xl bg-zinc-900 ring-1 ring-zinc-800 shadow-xl">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-              <h3 className="text-lg font-semibold">Detalhes do Cartão de Crédito</h3>
-              <button onClick={() => setOpen(false)} className="rounded px-3 py-1 ring-1 ring-zinc-700 hover:bg-zinc-800 text-sm">Fechar</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6">
+          <div className="absolute inset-0" onClick={() => setOpen(false)} />
+          <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-zinc-800 shadow-xl">
+            <div className="flex flex-col gap-3 border-b border-zinc-800 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-lg font-semibold text-zinc-100">Detalhes do Cartão de Crédito</h3>
+              <button
+                onClick={() => setOpen(false)}
+                className="self-end rounded px-3 py-1 text-sm ring-1 ring-zinc-700 transition hover:bg-zinc-800 sm:self-auto"
+              >
+                Fechar
+              </button>
             </div>
-            <div className="p-4 max-h-[70vh] overflow-auto">
-              <div className="overflow-hidden rounded-xl ring-1 ring-zinc-800">
-                <table className="min-w-full divide-y divide-zinc-800">
+
+            <div className="max-h-[70vh] overflow-auto px-2 pb-4 sm:px-4">
+              <div className="overflow-x-auto">
+                <table className="min-w-[720px] divide-y divide-zinc-800 text-sm">
                   <thead className="bg-zinc-900">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">Descrição</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">Parcela</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">Valor</th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-zinc-400">Pago</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-zinc-400">Ações</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">Descrição</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">Parcela</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-400">Valor</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-zinc-400">Pago</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-400">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800 bg-zinc-950">
                     {loading && (
                       <tr>
-                        <td colSpan={4} className="px-4 py-6 text-center text-zinc-400">Carregando...</td>
+                        <td colSpan={5} className="px-4 py-6 text-center text-zinc-400">
+                          Carregando...
+                        </td>
                       </tr>
                     )}
                     {!loading && itens.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="px-4 py-6 text-center text-zinc-400">Sem lançamentos do cartão</td>
+                        <td colSpan={5} className="px-4 py-6 text-center text-zinc-400">
+                          Sem lançamentos do cartão
+                        </td>
                       </tr>
                     )}
-                    {!loading && itens.map((g) => (
-                      <tr key={g.id} className="hover:bg-zinc-900/60">
-                        <td className="px-4 py-3 text-sm text-zinc-100">{g.descricao}</td>
-                        <td className="px-4 py-3 text-sm text-zinc-300">{formatParcela(g)}</td>
-                        <td className="px-4 py-3 text-right text-sm font-semibold text-zinc-100">{formatMoney(g.valor)}</td>
-                        <td className="px-4 py-3 text-center">
-                          <input type="checkbox" className="h-4 w-4 accent-indigo-500" checked={g.pago} onChange={() => togglePago(g)} />
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <button onClick={() => handleDelete(g)} className="rounded px-2 py-1 text-sm ring-1 ring-red-700 hover:bg-red-700/10">Excluir</button>
-                        </td>
-                      </tr>
-                    ))}
+                    {!loading &&
+                      itens.map((g) => (
+                        <tr key={g.id} className="hover:bg-zinc-900/60">
+                          <td className="px-4 py-3 text-sm text-zinc-100">{g.descricao}</td>
+                          <td className="px-4 py-3 text-sm text-zinc-300">{formatParcela(g)}</td>
+                          <td className="px-4 py-3 text-right text-sm font-semibold text-zinc-100">{formatMoney(g.valor)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 accent-indigo-500"
+                              checked={g.pago}
+                              onChange={() => togglePago(g)}
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={() => handleDelete(g)}
+                              className="rounded px-2 py-1 text-sm ring-1 ring-red-700 transition hover:bg-red-700/10"
+                            >
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -154,3 +173,4 @@ function formatParcela(g: Gasto) {
   }
   return "-";
 }
+

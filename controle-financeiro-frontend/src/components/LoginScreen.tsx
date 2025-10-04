@@ -28,7 +28,7 @@ export default function LoginScreen() {
         {/* Hero illustration (desktop only) */}
         <img src="/login-hero.svg" alt="finance hero" className="hidden md:block hero-float absolute right-[8%] top-1/2 -translate-y-1/2 w-[420px] pointer-events-none select-none" />
 
-        <div className="glass w-full max-w-md rounded-2xl px-8 py-10">
+        <div className="glass w-full max-w-md rounded-2xl px-6 py-10 sm:px-8">
           <div className="mb-6 text-center">
             <div className="mx-auto mb-3 h-12 w-12 rounded-xl bg-gradient-to-br from-[#4c1d95] to-[#7c3aed] shadow-lg flex items-center justify-center">
               {/* Money bag icon */}
@@ -59,7 +59,7 @@ export default function LoginScreen() {
           </button>
 
           <div className="mt-6 text-center text-xs text-zinc-500">
-            Seus dados financeiros são privados e vinculados à sua conta.
+            Seus dados financeiros sÃ£o privados e vinculados Ã  sua conta.
           </div>
         </div>
       </div>
@@ -71,3 +71,6 @@ export default function LoginScreen() {
     </div>
   );
 }
+
+
+
