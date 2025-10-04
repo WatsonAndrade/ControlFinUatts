@@ -1,0 +1,34 @@
+name: Deploy Backend and Frontend
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Deploy Backend (Docker)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER_API: ${{ secrets.DEPLOY_USER_API }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $DEPLOY_USER_API@$DEPLOY_HOST "cd /home/uatts-api/htdocs/api.uatts.site && git pull && docker compose --env-file .env -f docker-compose.cloudpanel.yml build --pull && docker compose --env-file .env -f docker-compose.cloudpanel.yml up -d"
+
+      - name: Deploy Frontend (Vite)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER_FRONT: ${{ secrets.DEPLOY_USER_FRONT }}
+          FRONT_DEST: ${{ secrets.FRONT_DEST }}
+        run: |
+          npm ci --prefix controle-financeiro-frontend
+          npm run build -- --mode production --prefix controle-financeiro-frontend
+          rsync -avz --delete controle-financeiro-frontend/dist/ $DEPLOY_USER_FRONT@$DEPLOY_HOST:$FRONT_DEST
