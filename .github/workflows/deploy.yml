@@ -35,6 +35,6 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
         run: |
-          npm ci --prefix controle-financeiro-frontend
-          npm run build -- --mode production --prefix controle-financeiro-frontend
-          rsync -avz --delete controle-financeiro-frontend/dist/ $DEPLOY_USER_FRONT@$DEPLOY_HOST:$FRONT_DEST
+          npm ci
+          npm run build -- --mode production
+          rsync -avz --delete dist/ $DEPLOY_USER_FRONT@$DEPLOY_HOST:$FRONT_DEST
