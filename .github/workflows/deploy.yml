@@ -35,6 +35,6 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
         run: |
-          npm ci
+          npm install
           npm run build -- --mode production
           rsync -avz --delete dist/ $DEPLOY_USER_FRONT@$DEPLOY_HOST:$FRONT_DEST
