@@ -6,7 +6,7 @@ type Props = {
   onClose: () => void;
   mesNumero: number;
   anoPagamento: number;
-  onCreated?: () => void;
+  onCreated?: () => void; // callback após criar
 };
 
 const mesesPtBR = [
@@ -94,10 +94,10 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-zinc-900 p-5 text-zinc-100 ring-1 ring-zinc-800 shadow-xl sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold">Novo Gasto</h2>
+      <div className="relative w-full max-w-md rounded-xl bg-zinc-900 ring-1 ring-zinc-800 shadow-xl p-5 text-zinc-100">
+        <h2 className="text-lg font-semibold mb-4">Novo Gasto</h2>
 
         {error && (
           <div className="mb-3 rounded border border-rose-600/40 bg-rose-900/30 px-3 py-2 text-sm text-rose-200">
@@ -107,7 +107,7 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="mb-1 block text-sm">Descrição</label>
+            <label className="block text-sm mb-1">Descrição</label>
             <input
               required
               value={form.descricao}
@@ -118,7 +118,7 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
           </div>
 
           <div>
-            <label className="mb-1 block text-sm">Categoria</label>
+            <label className="block text-sm mb-1">Categoria</label>
             <input
               required
               value={form.categoria}
@@ -128,9 +128,9 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-sm">Valor</label>
+              <label className="block text-sm mb-1">Valor</label>
               <input
                 value={form.valor}
                 onChange={(e) => setForm({ ...form, valor: e.target.value })}
@@ -139,19 +139,21 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
                 className="w-full rounded-lg bg-zinc-800 px-3 py-2 ring-1 ring-zinc-700 outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.pago}
-                onChange={(e) => setForm({ ...form, pago: e.target.checked })}
-                className="h-4 w-4 accent-indigo-500"
-              />
-              <label className="text-sm">Pago</label>
+            <div className="flex items-end gap-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={form.pago}
+                  onChange={(e) => setForm({ ...form, pago: e.target.checked })}
+                  className="h-4 w-4 accent-indigo-500"
+                />
+                Pago
+              </label>
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-sm">Referente a (opcional)</label>
+            <label className="block text-sm mb-1">Referente a (opcional)</label>
             <input
               value={form.referenteA}
               onChange={(e) => setForm({ ...form, referenteA: e.target.value })}
@@ -160,40 +162,36 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-sm">Mês</label>
+              <label className="block text-sm mb-1">Mês</label>
               <select
                 value={form.mesNumero}
                 onChange={(e) => setForm({ ...form, mesNumero: Number(e.target.value) })}
                 className="w-full rounded-lg bg-zinc-800 px-3 py-2 ring-1 ring-zinc-700 outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {mesesPtBR.map((m, i) => (
-                  <option key={m} value={i + 1}>
-                    {m}
-                  </option>
+                  <option key={m} value={i + 1}>{m}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm">Ano</label>
+              <label className="block text-sm mb-1">Ano</label>
               <select
                 value={form.anoPagamento}
                 onChange={(e) => setForm({ ...form, anoPagamento: Number(e.target.value) })}
                 className="w-full rounded-lg bg-zinc-800 px-3 py-2 ring-1 ring-zinc-700 outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {Array.from({ length: 6 }, (_, k) => new Date().getFullYear() - k).map((a) => (
-                  <option key={a} value={a}>
-                    {a}
-                  </option>
+                  <option key={a} value={a}>{a}</option>
                 ))}
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-sm">Total de parcelas (opcional)</label>
+              <label className="block text-sm mb-1">Total de parcelas (opcional)</label>
               <input
                 value={form.totalParcelas}
                 onChange={(e) => setForm({ ...form, totalParcelas: e.target.value })}
@@ -203,7 +201,7 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm">Parcela atual (opcional)</label>
+              <label className="block text-sm mb-1">Parcela atual (opcional)</label>
               <input
                 value={form.parcelaAtual}
                 onChange={(e) => setForm({ ...form, parcelaAtual: e.target.value })}
@@ -214,18 +212,18 @@ export default function AddGastoModal({ open, onClose, mesNumero, anoPagamento, 
             </div>
           </div>
 
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <div className="mt-4 flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-3 py-2 text-sm ring-1 ring-zinc-700 transition hover:bg-zinc-800"
+              className="rounded-lg px-3 py-2 text-sm ring-1 ring-zinc-700 hover:bg-zinc-800"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!canSave || busy}
-              className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium transition hover:bg-indigo-500 disabled:opacity-50"
+              className="rounded-lg px-3 py-2 text-sm bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50"
             >
               {busy ? "Salvando..." : "Salvar"}
             </button>
