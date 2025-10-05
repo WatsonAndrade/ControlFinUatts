@@ -137,6 +137,6 @@ export interface CriarGastoDTO {
 }
 
 export async function criarGasto(dto: CriarGastoDTO) {
-  const res = await api.post("/gastos", dto);
+  const res = await api.post("/gastos/gastos", dto);
   return res.data as Gasto;
 }

@@ -41,9 +41,20 @@ public class GastoController {
 
     @PostMapping
     public ResponseEntity<Gasto> criarGasto(@RequestBody Gasto gasto) {
+        String uid = null;
+        var authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            uid = jwt.getSubject();
+        }
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        gasto.setId(null);
+        gasto.setUserId(uid);
         Gasto novoGasto = gastoService.salvar(gasto);
-        return ResponseEntity.ok(novoGasto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoGasto);
     }
+
 
     @GetMapping("/mes/{mesPagamento}")
     public ResponseEntity<List<Gasto>> listarPorMes(@PathVariable String mesPagamento) {
@@ -519,9 +530,18 @@ public class GastoController {
 
     @PostMapping("/gastos")
     public ResponseEntity<Gasto> criar(@Valid @RequestBody CriarGastoDTO dto) {
-        var gasto = gastoService.criar(dto);
+        String uid = null;
+        var authn = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authn != null && authn.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            uid = jwt.getSubject();
+        }
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        var gasto = gastoService.criar(dto, uid);
         return ResponseEntity.status(HttpStatus.CREATED).body(gasto);
     }
+
 
 
 

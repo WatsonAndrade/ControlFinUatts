@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { CARTAO_CREDITO_CATEGORIA } from "../constants";
+
 import {
   resumoPorCategoria,
   listarGastosPorCategoria,
@@ -14,7 +16,7 @@ type Props = {
   refreshToken?: number; // força recarregar resumo de fora
 };
 
-const CATEGORIA_CARTAO = "Cartão de Crédito"; // categoria usada para lançamentos do cartão
+const CATEGORIA_CARTAO = CARTAO_CREDITO_CATEGORIA; // categoria usada para lançamentos do cartão
 
 export default function CartaoCreditoResumo({ mesNumero, anoPagamento, onChanged, refreshToken }: Props) {
   const [total, setTotal] = useState<number>(0);

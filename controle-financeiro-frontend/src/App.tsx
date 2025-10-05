@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import Card from "./components/ui/Card";
 import EditableMoneyCard from "./components/EditableMoneyCard";
 import CartaoCreditoResumo from "./components/CartaoCreditoResumo";
+import { CARTAO_CREDITO_CATEGORIA } from "./constants";
 import { listarGastosPaginado, resumoMensal } from "./services/gastos";
 import AddGastoModal from "./components/AddGastoModal";
 import { buscarReceitaMensal, salvarReceitaMensal } from "./services/receitas";
@@ -65,7 +66,7 @@ export default function App() {
         if (ativo) {
           setReceitaTotal(0);
         }
-        const mensagem = e?.response?.status === 401 ? "N„o autorizado" : (e?.response?.data || e?.message || "Falha ao carregar receita.");
+        const mensagem = e?.response?.status === 401 ? "N√£o autorizado" : (e?.response?.data || e?.message || "Falha ao carregar receita.");
         setReceitaErro(mensagem);
       }
 
@@ -81,7 +82,7 @@ export default function App() {
 
   async function salvarReceitaDoMes(novoValor: number) {
     if (!user) {
-      setReceitaErro("Sess„o expirada ou usu·rio n„o autenticado.");
+      setReceitaErro("Sess√£o expirada ou usu√°rio n√£o autenticado.");
       return;
     }
     const anterior = receitaTotal;
@@ -92,7 +93,7 @@ export default function App() {
     } catch (e: any) {
       console.error("[ReceitaMensal][Salvar]", e?.response?.status, e?.response?.data || e?.message);
       setReceitaTotal(anterior);
-      const mensagem = e?.response?.status === 401 ? "N„o autorizado" : (e?.response?.data || e?.message || "Falha ao salvar receita.");
+      const mensagem = e?.response?.status === 401 ? "N√£o autorizado" : (e?.response?.data || e?.message || "Falha ao salvar receita.");
       setReceitaErro(mensagem);
     }
   }
@@ -154,7 +155,7 @@ export default function App() {
         <GastosTable
           mesNumero={mesNumero}
           anoPagamento={anoPagamento}
-          excludeCategoria="Cart„o de CrÈdito"
+          excludeCategoria={CARTAO_CREDITO_CATEGORIA}
           refreshToken={refreshToken}
           onAddNew={() => setAddOpen(true)}
         />
