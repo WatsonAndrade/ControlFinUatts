@@ -7,8 +7,10 @@ import { listarGastosPaginado, resumoMensal } from "./services/gastos";
 import AddGastoModal from "./components/AddGastoModal";
 import { buscarReceitaMensal, salvarReceitaMensal } from "./services/receitas";
 import GastosTable from "./components/GastosTable";
+import { useAuth } from "./auth/AuthProvider";
 
 export default function App() {
+  const { user, loading: authLoading } = useAuth();
   const [mesNumero, setMesNumero] = useState<number>(new Date().getMonth() + 1);
   const [anoPagamento, setAnoPagamento] = useState<number>(new Date().getFullYear());
 
@@ -46,6 +48,12 @@ export default function App() {
     let ativo = true;
 
     async function carregarDados() {
+      if (authLoading) return;
+      if (!user) {
+        setReceitaTotal(0);
+        return;
+      }
+
       try {
         setReceitaErro(null);
         const valor = await buscarReceitaMensal(anoPagamento, mesNumero);
@@ -57,7 +65,8 @@ export default function App() {
         if (ativo) {
           setReceitaTotal(0);
         }
-        setReceitaErro(e?.response?.data || e?.message || "Falha ao carregar receita.");
+        const mensagem = e?.response?.status === 401 ? "Não autorizado" : (e?.response?.data || e?.message || "Falha ao carregar receita.");
+        setReceitaErro(mensagem);
       }
 
       await Promise.all([carregarResumo(), carregarGastos()]);
@@ -68,9 +77,13 @@ export default function App() {
     return () => {
       ativo = false;
     };
-  }, [mesNumero, anoPagamento]);
+  }, [authLoading, user, mesNumero, anoPagamento]);
 
   async function salvarReceitaDoMes(novoValor: number) {
+    if (!user) {
+      setReceitaErro("Sessão expirada ou usuário não autenticado.");
+      return;
+    }
     const anterior = receitaTotal;
     setReceitaTotal(novoValor);
     try {
@@ -79,7 +92,8 @@ export default function App() {
     } catch (e: any) {
       console.error("[ReceitaMensal][Salvar]", e?.response?.status, e?.response?.data || e?.message);
       setReceitaTotal(anterior);
-      setReceitaErro(e?.response?.data || e?.message || "Falha ao salvar receita.");
+      const mensagem = e?.response?.status === 401 ? "Não autorizado" : (e?.response?.data || e?.message || "Falha ao salvar receita.");
+      setReceitaErro(mensagem);
     }
   }
 
