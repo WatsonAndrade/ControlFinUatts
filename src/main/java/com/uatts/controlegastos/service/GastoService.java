@@ -1,4 +1,4 @@
-﻿package com.uatts.controlegastos.service;
+package com.uatts.controlegastos.service;
 
 import com.uatts.controlegastos.dto.AtualizacaoGastoDTO;
 import com.uatts.controlegastos.dto.CategoriaResumoDTO;
@@ -22,7 +22,7 @@ import java.util.Locale;
 public class GastoService {
 
     private final GastoRepository gastoRepository;
-    private static final String CATEGORIA_CARTAO = "CartÃ£o de CrÃ©dito";
+    private static final String CATEGORIA_CARTAO = "Cartão de Crédito";
 
     public GastoService(GastoRepository gastoRepository) {
         this.gastoRepository = gastoRepository;
@@ -110,7 +110,7 @@ public class GastoService {
     }
 
     private Gasto buscarOuLancarErro(Long id) {
-        return gastoRepository.findById(id).orElseThrow(() -> new RuntimeException("Gasto nÃ£o encontrado"));
+        return gastoRepository.findById(id).orElseThrow(() -> new RuntimeException("Gasto não encontrado"));
     }
 
     public List<Gasto> filtrarDuplicados(List<Gasto> novosGastos) {
@@ -123,7 +123,7 @@ public class GastoService {
             porPeriodo.computeIfAbsent(key, k -> new ArrayList<>()).add(g);
         }
 
-        // ConstrÃ³i um Ã­ndice de chaves Ãºnicas a partir do banco por perÃ­odo
+        // Constrói um índice de chaves únicas a partir do banco por período
         java.util.Set<String> chavesExistentes = new java.util.HashSet<>();
         for (String k : porPeriodo.keySet()) {
             String[] parts = k.split(":", -1);
@@ -134,13 +134,13 @@ public class GastoService {
             for (Gasto e : existentes) chavesExistentes.add(signature(e));
         }
 
-        // Agora filtra novos removendo duplicados contra o banco e dentro do prÃ³prio lote
+        // Agora filtra novos removendo duplicados contra o banco e dentro do próprio lote
         java.util.Set<String> chavesNoLote = new java.util.HashSet<>();
         List<Gasto> result = new ArrayList<>();
         for (Gasto g : novosGastos) {
             String sig = signature(g);
             if (chavesExistentes.contains(sig)) {
-                continue; // jÃ¡ existe no banco
+                continue; // já existe no banco
             }
             if (chavesNoLote.contains(sig)) {
                 continue; // duplicado dentro do mesmo CSV
@@ -290,7 +290,7 @@ public class GastoService {
         if (mesPag == null) return null;
         String s = mesPag.trim().toLowerCase();
 
-        // nÃºmero "7" ou "07"
+        // número "7" ou "07"
         try {
             int n = Integer.parseInt(s);
             if (n >= 1 && n <= 12) return n;
@@ -303,7 +303,7 @@ public class GastoService {
             // 2
             case "fev": case "fevereiro": case "feb": case "february": return 2;
             // 3
-            case "mar": case "marco": case "marÃ§o": case "march": return 3;
+            case "mar": case "marco": case "março": case "march": return 3;
             // 4
             case "abr": case "abril": case "apr": case "april": return 4;
             // 5
@@ -335,7 +335,7 @@ public class GastoService {
         for (var g : pendentes) {
             boolean mudou = false;
 
-            // Se mesNumero estÃ¡ nulo, tenta derivar de mesPagamento
+            // Se mesNumero está nulo, tenta derivar de mesPagamento
             if (g.getMesNumero() == null && g.getMesPagamento() != null) {
                 Integer parsed = parseMes(g.getMesPagamento());
                 if (parsed != null) {
@@ -344,7 +344,7 @@ public class GastoService {
                 }
             }
 
-            // Se mesPagamento (String) estÃ¡ nulo mas hÃ¡ mesNumero, derive o texto
+            // Se mesPagamento (String) está nulo mas há mesNumero, derive o texto
             if (g.getMesPagamento() == null && g.getMesNumero() != null) {
                 g.setMesPagamento(String.valueOf(g.getMesNumero()));
                 mudou = true;

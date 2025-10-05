@@ -85,7 +85,7 @@ public class CsvParserService {
                 } catch (NumberFormatException e) {
                     continue; // linha malformada
                 }
-                // ignora linhas negativas (reembolsos) e n„o-despesas
+                // ignora linhas negativas (reembolsos) e n√£o-despesas
                 if (valor <= 0.0) continue;
 
                 // Se existir reembolso correspondente para esta compra e valor, ignora a compra
