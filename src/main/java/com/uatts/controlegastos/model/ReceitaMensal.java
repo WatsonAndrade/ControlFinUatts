@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "receita_mensal", uniqueConstraints = @UniqueConstraint(columnNames = {"ano", "mes"}))
+@Table(name = "receita_mensal", uniqueConstraints = @UniqueConstraint(columnNames = {"ano", "mes", "usuario_id"}))
 public class ReceitaMensal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +23,9 @@ public class ReceitaMensal {
 
     @Column(nullable = false)
     private Double valor = 0.0;
+
+    @Column(name = "usuario_id", nullable = false)
+    private String usuarioId;
 
     public Long getId() {
         return id;
@@ -54,5 +57,13 @@ public class ReceitaMensal {
 
     public void setValor(Double valor) {
         this.valor = valor;
+    }
+
+    public String getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(String usuarioId) {
+        this.usuarioId = usuarioId;
     }
 }

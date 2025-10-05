@@ -5,5 +5,5 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReceitaMensalRepository extends JpaRepository<ReceitaMensal, Long> {
-    Optional<ReceitaMensal> findByAnoAndMes(Integer ano, Integer mes);
+    Optional<ReceitaMensal> findByAnoAndMesAndUsuarioId(Integer ano, Integer mes, String usuarioId);
 }

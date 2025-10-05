@@ -15,16 +15,17 @@ public class ReceitaMensalService {
         this.repository = repository;
     }
 
-    public Optional<ReceitaMensal> buscar(int ano, int mes) {
-        return repository.findByAnoAndMes(ano, mes);
+    public Optional<ReceitaMensal> buscar(String usuarioId, int ano, int mes) {
+        return repository.findByAnoAndMesAndUsuarioId(ano, mes, usuarioId);
     }
 
     @Transactional
-    public ReceitaMensal salvarOuAtualizar(int ano, int mes, double valor) {
+    public ReceitaMensal salvarOuAtualizar(String usuarioId, int ano, int mes, double valor) {
         ReceitaMensal receita = repository
-            .findByAnoAndMes(ano, mes)
+            .findByAnoAndMesAndUsuarioId(ano, mes, usuarioId)
             .orElseGet(() -> {
                 ReceitaMensal nova = new ReceitaMensal();
+                nova.setUsuarioId(usuarioId);
                 nova.setAno(ano);
                 nova.setMes(mes);
                 return nova;
